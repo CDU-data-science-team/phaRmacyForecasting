@@ -22,11 +22,14 @@ golem::fill_desc(
   pkg_name = "phaRmacyForecasting", # The Name of the package containing the App 
   pkg_title = "Putting the R in pharmacy- a Shiny application to make forecasts 
   of medication use in pharmacies in Nottinghamshire Healthcare NHS Trust", # The Title of the package containing the App 
-  pkg_description = "PKG_DESC.", # The Description of the package containing the App 
+  pkg_description = "This is a Shiny application which allows users to make predictions 
+  on the volumes of drugs issued from Nottinghamshire Healthcare pharmacies. A variety 
+  of forecasting models are used, and options are provided to tweak the forecast to 
+  improve model fit", # The Description of the package containing the App 
   author_first_name = "Chris", # Your First Name
   author_last_name = "Beeley", # Your Last Name
-  author_email = "AUTHOR@MAIL.COM", # Your Email
-  repo_url = NULL # The URL of the GitHub Repo (optional) 
+  author_email = "chris.beeley@gmail.com", # Your Email
+  repo_url = "https://github.com/CDU-data-science-team/phaRmacyForecasting" # The URL of the GitHub Repo (optional) 
 )     
 
 ## Set {golem} options ----
@@ -49,6 +52,7 @@ golem::use_recommended_tests()
 
 ## Use Recommended Packages ----
 golem::use_recommended_deps()
+usethis::use_pipe()
 
 ## Favicon ----
 # If you want to change the favicon (default is golem's one)
