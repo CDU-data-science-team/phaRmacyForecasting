@@ -19,6 +19,11 @@ stop()
 ## Add one line by package you want to add as dependency
 usethis::use_package( "thinkr" )
 usethis::use_package( "shinydashboard" )
+usethis::use_package( "tsibble" )
+usethis::use_package( "fable" )
+usethis::use_package( "fasster" )
+usethis::use_package( "prophet" )
+usethis::use_package( "ggplot2" )
 
 ## Add modules ----
 ## Create a module infrastructure in R/

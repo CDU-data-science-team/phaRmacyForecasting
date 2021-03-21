@@ -21,6 +21,7 @@ app_ui <- function(request) {
           menuItem("Diagnostics", tabName = "diagnostics", 
                    icon = icon("question-circle")),
           uiOutput("drugNameUI"),
+          uiOutput("siteUI"),
           uiOutput("dateRangeUI")
         )
       ),
@@ -28,11 +29,12 @@ app_ui <- function(request) {
         tabItems(
           # First tab content
           tabItem(tabName = "reordering",
-                  mod_forecasts_ui("forecasts_ui_1")
+                  
           ),
           
           # Second tab content
           tabItem(tabName = "forecasts",
+                  mod_forecasts_ui("forecasts_ui_1")
           )
         )
       )
