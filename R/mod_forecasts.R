@@ -20,9 +20,23 @@ mod_forecasts_ui <- function(id){
                                       "Exclude weekends"))
       ),
       column(10,
-             plotOutput(ns("summaryForecast"))
+             plotOutput(ns("summaryForecast")),
+             
+             hr(),
+             
+             fluidRow(
+               column(6,
+                      span(textOutput(ns("accuracy_text")), 
+                           style = "font-size:160%"),
+                      
+                      hr(),
+                      
+                      DT::dataTableOutput(ns("accuracy"))),
+               
+               column(6, )
+             )
       )
-    )  
+    )
   )
 }
 
@@ -57,10 +71,31 @@ mod_forecasts_server <- function(id, filter_data){
     
     output$summaryForecast <- renderPlot({
       
-      plot_forecast(forecast_series = forecast(), 
+      plot_forecast(forecast_value = forecast(), 
                     data = pass_data(), 
                     horizon = horizon())
-
+      
     })
+    
+    output$accuracy <- DT::renderDT({
+      
+      show_accuracy(forecast_value = forecast(),
+                    data = pass_data())
+    })
+    
+    output$accuracy_text <- renderText(({
+      
+      average_use <- mean(tail(pass_data()$quantity, 
+                               ifelse(input$dailyWeekly == "Daily", 
+                                      365, 52)))
+      
+      average_use <- round(average_use, 1)
+
+      paste0("The table below shows the ", tolower(input$dailyWeekly),
+             " average error for each of the models used. 
+             For comparison average ", tolower(input$dailyWeekly), 
+             " issues of this drug were ", average_use,
+             " in the previous year")
+    }))
   })
 }

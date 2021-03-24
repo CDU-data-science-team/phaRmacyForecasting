@@ -39,12 +39,20 @@ forecast_series <- function(data, horizon, frequency = c("Daily", "Weekly")){
                       fable::ARIMA(quantity),
                       fable::ETS(quantity ~ season(method = values[2])),
                       fable.prophet::prophet(quantity)) %>%
-    forecast::forecast(h = horizon)
+    forecast::forecast(h = horizon) %>% 
+    # tibble::as_tibble() %>% 
+    dplyr::mutate(.model = dplyr::case_when(
+      
+      grepl("SNAIVE", .model) ~ "SNAIVE",
+      grepl("ARIMA", .model) ~ "ARIMA",
+      grepl("ETS", .model) ~ "ETS",
+      grepl("prophet", .model) ~ "Prophet"
+    ))
 }
 
-plot_forecast <- function(forecast_series, data, horizon){
+plot_forecast <- function(forecast_value, data, horizon){
   
-  forecast_series %>% 
+  forecast_value %>% 
     dplyr::bind_rows(data %>% 
                        tail(horizon) %>% 
                        dplyr::rename(.mean = quantity) %>% 
@@ -53,4 +61,12 @@ plot_forecast <- function(forecast_series, data, horizon){
     ggplot2::ggplot(ggplot2::aes(x = Date, y = .mean, 
                                  group = .model, colour = .model)) + 
     ggplot2::geom_line() + ggplot2::facet_wrap( ~ .model)
+}
+
+show_accuracy <- function(forecast_value, data){
+  
+  forecast_value %>% 
+    fabletools::accuracy(data) %>% 
+    dplyr::mutate(across(where(is.numeric), signif, 3)) %>%
+    dplyr::select(model = .model, MAE)
 }
