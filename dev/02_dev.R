@@ -24,6 +24,7 @@ usethis::use_package( "fable" )
 usethis::use_package( "fasster" )
 usethis::use_package( "prophet" )
 usethis::use_package( "ggplot2" )
+usethis::use_package( "lubridate" )
 
 ## Add modules ----
 ## Create a module infrastructure in R/
@@ -47,7 +48,7 @@ usethis::use_data_raw( name = "pharmacy", open = FALSE )
 
 ## Tests ----
 ## Add one line by test you want to create
-usethis::use_test( "app" )
+usethis::use_test( "data_forecast" )
 
 # Documentation
 

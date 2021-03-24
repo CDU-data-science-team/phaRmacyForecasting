@@ -35,51 +35,32 @@ mod_forecasts_server <- function(id, filter_data){
     
     pass_data <- reactive({
       
+      make_tsibble(filter_data(), frequency = input$dailyWeekly)
+    })
+    
+    horizon <- reactive({
+      
       if(input$dailyWeekly == "Daily"){
         
-        filter_data() %>% 
-          dplyr::filter(Total_Qty >= 0) %>% 
-          dplyr::group_by(Date) %>%
-          dplyr::summarise(quantity = sum(Total_Qty, na.rm = TRUE)) %>% 
-          dplyr::ungroup() %>%  
-          tsibble::tsibble(index = Date) %>% 
-          tsibble::fill_gaps(quantity = 0)
-        
+        return(42)
       } else {
         
-        filter_data() %>% 
-          dplyr::filter(Total_Qty >= 0) %>% 
-          dplyr::mutate(Date = floor_date(Date, "week"),
-                        Date = yearweek(Date)) %>%
-          dplyr::group_by(Date) %>%
-          dplyr::summarise(quantity = sum(Total_Qty, na.rm = TRUE)) %>% 
-          dplyr::ungroup() %>% 
-          head(-1) %>% # remove the last row in case it isn't a complete week
-          tsibble::tsibble(index = Date) %>% 
-          tsibble::fill_gaps(quantity = 0)
+        return(6)
       }
       
     })
     
     forecast <- reactive({
       
-      drug_train <- pass_data() %>% 
-        head(-42)
-      
-      drug_train %>% 
-        fabletools::model(fable::SNAIVE(quantity ~ lag("week")), 
-                          fable::ARIMA(quantity),
-                          fable::ETS(quantity ~ season(method = "A")),
-                          fable.prophet::prophet(quantity ~ season(7)),
-                          fasster::FASSTER(quantity ~ fasster::trend(1) + 
-                                             fourier(7))) %>%
-        forecast::forecast(h = 42)
+      forecast_series(pass_data(), horizon(), frequency = input$dailyWeekly)
     })
     
     output$summaryForecast <- renderPlot({
       
-      forecast() %>% 
-        ggplot2::autoplot(pass_data() %>% tail(42), level = NULL)
+      plot_forecast(forecast_series = forecast(), 
+                    data = pass_data(), 
+                    horizon = horizon())
+
     })
   })
 }
