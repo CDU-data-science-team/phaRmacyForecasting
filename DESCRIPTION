@@ -23,7 +23,13 @@ Imports:
     fasster,
     prophet,
     ggplot2,
-    lubridate
+    lubridate,
+    pkgload,
+    forecast,
+    fable.prophet,
+    dplyr,
+    fabletools,
+    feasts
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1

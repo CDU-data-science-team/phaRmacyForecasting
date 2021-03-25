@@ -25,6 +25,11 @@ usethis::use_package( "fasster" )
 usethis::use_package( "prophet" )
 usethis::use_package( "ggplot2" )
 usethis::use_package( "lubridate" )
+usethis::use_package( "forecast" )
+usethis::use_package( "fable.prophet" )
+usethis::use_package( "dplyr" )
+usethis::use_package( "fabletools" )
+usethis::use_package( "feasts" )
 
 ## Add modules ----
 ## Create a module infrastructure in R/

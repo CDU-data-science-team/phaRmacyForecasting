@@ -9,7 +9,9 @@ app_server <- function( input, output, session ) {
   
   output$drugNameUI <- renderUI({
     
-    drug_names <- unique(pharmacy$NSVCode)
+    drug_names <- sort(unique(pharmacy$NSVCode))
+    
+    drug_names <- drug_names[!drug_names == "Drug D"]
     
     selectInput("selectDrug", "Select drug to forecast",
                 choices = drug_names)

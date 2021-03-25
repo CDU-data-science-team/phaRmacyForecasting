@@ -14,7 +14,7 @@ app_ui <- function(request) {
       dashboardHeader(title = "PhaRmacy foRecasting"),
       dashboardSidebar(
         sidebarMenu(
-          menuItem("Reordering", tabName = "reordering", icon = icon("cubes")),
+          # menuItem("Reordering", tabName = "reordering", icon = icon("cubes")),
           menuItem("Forecasts", tabName = "forecasts", icon = icon("tablets")),
           menuItem("Model comparison", tabName = "compare", 
                    icon = icon("sort-amount-down")),

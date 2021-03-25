@@ -14,10 +14,10 @@ mod_forecasts_ui <- function(id){
     fluidRow(
       column(2,
              radioButtons(ns("dailyWeekly"), "Weekly/ daily",
-                          choices = c("Daily", "Weekly")),
-             radioButtons(ns("weekends"), "Include weekends?",
-                          choices = c("Include weekends",
-                                      "Exclude weekends"))
+                          choices = c("Daily", "Weekly"))
+             # radioButtons(ns("weekends"), "Include weekends?",
+             #              choices = c("Include weekends",
+             #                          "Exclude weekends"))
       ),
       column(10,
              plotOutput(ns("summaryForecast")),
@@ -71,6 +71,8 @@ mod_forecasts_server <- function(id, filter_data){
     
     output$summaryForecast <- renderPlot({
       
+      req(forecast())
+      
       plot_forecast(forecast_value = forecast(), 
                     data = pass_data(), 
                     horizon = horizon())
@@ -79,11 +81,15 @@ mod_forecasts_server <- function(id, filter_data){
     
     output$accuracy <- DT::renderDT({
       
+      req(forecast())
+      
       show_accuracy(forecast_value = forecast(),
                     data = pass_data())
     })
     
     output$accuracy_text <- renderText(({
+      
+      req(pass_data())
       
       average_use <- mean(tail(pass_data()$quantity, 
                                ifelse(input$dailyWeekly == "Daily", 
