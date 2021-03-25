@@ -1,13 +1,13 @@
 Package: phaRmacyForecasting
-Title: An Amazing Shiny App
-Version: 0.0.0.9000
-Authors@R: 
-    person(given = "firstname",
-           family = "lastname",
-           role = c("aut", "cre"),
-           email = "your@email.com")
-Description: What the package does (one paragraph).
-License: What license is it under?
+Title: Putting the R in pharmacy- a Shiny application to make forecasts 
+  of medication use in pharmacies in Nottinghamshire Healthcare NHS Trust
+Version: 0.1.0
+Authors@R: person('Chris', 'Beeley', email = 'chris.beeley@gmail.com', role = c('cre', 'aut'))
+Description: This is a Shiny application which allows users to make predictions 
+  on the volumes of drugs issued from Nottinghamshire Healthcare pharmacies. A variety 
+  of forecasting models are used, and options are provided to tweak the forecast to 
+  improve model fit
+License: MIT + file LICENSE
 Imports: 
     config (>= 0.3.1),
     golem (>= 0.3.0),
@@ -38,3 +38,5 @@ Depends:
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+URL: https://github.com/CDU-data-science-team/phaRmacyForecasting
+BugReports: https://github.com/CDU-data-science-team/phaRmacyForecasting/issues
