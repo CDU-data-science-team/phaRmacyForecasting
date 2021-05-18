@@ -1,21 +1,21 @@
-Q_toomuch_Q <-function() {
+Q_toomuch_Q <- function(forecast_q, o_orders, choose_distribution) {
   
   # function indicates if Q_i meets storage condition and, if not, gives next Q_i to try  
   
   epsilon <- 0.01
   flag2 = 0
-  P_Q_toomuch <- c(rep(1, Forecast_length)) # initialise as too much
-  Prob_x <-c(rep(0, Forecast_length)) # initialise to zero
-  term_x <- c(rep(0, Forecast_length))  
+  P_Q_toomuch <- c(rep(1, nrow(forecast_q))) # initialise as too much
+  Prob_x <-c(rep(0, nrow(forecast_q))) # initialise to zero
+  term_x <- c(rep(0, nrow(forecast_q)))  
   
-  Q_out <- sum(Outstanding_orders$Ord_quant)
+  Q_out <- sum(o_orders$Ord_quant)
   
-  for (x in seq(1,Forecast_length,1)){
+  for (x in seq(1, nrow(forecast_q), 1)){
     
-    Prob_x[x] <- lead_time_dis$cdf(x)- lead_time_dis$cdf(x-1)  # probability that this delivery will be on day x
+    Prob_x[x] <- choose_distribution$cdf(x) - choose_distribution$cdf(x - 1)  # probability that this delivery will be on day x
     
     P_Q_toomuch[x] <- pwlcdf(
-      Forecast_quantiles, q_vals, num_q_vals, x, inv_i + Q_out + Q_i - max_stock
+      forecast_q, q_vals, num_q_vals, x, inv_i + Q_out + Q_i - max_stock
     ) # gives probability that, if this delivery arrives at time x, it will breach storage constraint
   }
   
@@ -30,7 +30,7 @@ Q_toomuch_Q <-function() {
     
     P_target <- P_Q_toomuch[x_peak] * sc   # get target for reduced contribution from biggest term
     
-    B <- pwlquant(Forecast_quantiles, q_vals, num_q_vals, x_peak, P_target)   # get from forecast the demand associated with target prob
+    B <- pwlquant(forecast_q, q_vals, num_q_vals, x_peak, P_target)   # get from forecast the demand associated with target prob
     
     Q_i <- B - inv_i - Q_out + max_stock # set Q_i to meet that demand.
     # note this is not guaranteed to be enough of a reduction.  
