@@ -1,7 +1,7 @@
 Q_toomuch_Q <-function() {
-
-# function indicates if Q_i meets storage condition and, if not, gives next Q_i to try  
-    
+  
+  # function indicates if Q_i meets storage condition and, if not, gives next Q_i to try  
+  
   epsilon <- 0.01
   flag2 = 0
   P_Q_toomuch <- c(rep(1, Forecast_length)) # initialise as too much
@@ -13,9 +13,10 @@ Q_toomuch_Q <-function() {
   for (x in seq(1,Forecast_length,1)){
     
     Prob_x[x] <- lead_time_dis$cdf(x)- lead_time_dis$cdf(x-1)  # probability that this delivery will be on day x
-#    P_Q_toomuch[x] <-  pnorm((inv_i+Q_out+Q_i-max_stock),Forecast$mean_cumulative_demand[x],Forecast$sd_cumulative[x], lower.tail = TRUE)    
-#    P_Q_toomuch[x] <- Fcast[x]$cdf(inv_i+Q_out+Q_i-max_stock,lower.tail = TRUE )   
-    P_Q_toomuch[x] <- pwlcdf(Forecast_quantiles,q_vals,num_q_vals,x,inv_i+Q_out+Q_i-max_stock) # gives probability that, if this delivery arrives at time x, it will breach storage constraint
+    
+    P_Q_toomuch[x] <- pwlcdf(
+      Forecast_quantiles, q_vals, num_q_vals, x, inv_i + Q_out + Q_i - max_stock
+    ) # gives probability that, if this delivery arrives at time x, it will breach storage constraint
   }
   
   term_x <- Prob_x * P_Q_toomuch  # joint probability that delivery occurs at x and that Q_i breaches storage if so
@@ -24,24 +25,22 @@ Q_toomuch_Q <-function() {
   
   if (gam > p_max) {   # compare to tolerance 
     
-    sc <-  (p_max / gam) * (1-epsilon) # get reduction required in prob of breach
+    sc <- (p_max / gam) * (1 - epsilon) # get reduction required in prob of breach
     x_peak <- which.max(term_x) # find x with biggest contribution to prob of breach
     
     P_target <- P_Q_toomuch[x_peak] * sc   # get target for reduced contribution from biggest term
     
-#    B <- qnorm(P_target,Forecast$mean_cumulative_demand[x_peak],Forecast$sd_cumulative[x_peak],lower.tail = TRUE)
-#    B <- Fcast[x_peak]$quantile(P_target,lower.tail = TRUE)  
-     B <- pwlquant(Forecast_quantiles,q_vals,num_q_vals,x_peak,P_target)   # get from forecast the demand associated with target prob
+    B <- pwlquant(Forecast_quantiles, q_vals, num_q_vals, x_peak, P_target)   # get from forecast the demand associated with target prob
     
-        Q_i <- B - inv_i - Q_out + max_stock # set Q_i to meet that demand.
-                                                      # note this is not guaranteed to be enough of a reduction.  
+    Q_i <- B - inv_i - Q_out + max_stock # set Q_i to meet that demand.
+    # note this is not guaranteed to be enough of a reduction.  
   } else {
     
     flag2 = 1        
     
   }
   
-  res <- c(Q_i,flag2)
+  res <- c(Q_i, flag2)
   
   return(res)
 }
