@@ -1,4 +1,4 @@
-pwlquant <-function(Forecast_quantiles, q_vals, num_q_vals, time_point, p){ # set up as piece wise linear from input.
+pwlquant <- function(Forecast_quantiles, q_vals, num_q_vals, time_point, p){ # set up as piece wise linear from input.
   
   res <- numeric(length(p))
   
