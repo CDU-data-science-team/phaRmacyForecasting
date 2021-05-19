@@ -1,5 +1,5 @@
 Q_enough_Q <- function(lead_time_dis, inv_i, Outstanding_orders, 
-                       Forecast_quantiles, Delta_i, min_stock){
+                       Forecast_quantiles, Delta_i, min_stock, p_min){
   
   # This function assesses whether Q_i will be sufficient and, if not, suggests next Q_i to try  
   Q_i = 0 # initialise order quantity
@@ -29,14 +29,14 @@ Q_enough_Q <- function(lead_time_dis, inv_i, Outstanding_orders,
   
   phi <- sum(term_y) # sums over all possible delivery times y to give probability that Q_i insufficient
   
-  if (phi > p_min) {   # if Q_i not sufficient
+  if (phi > p_min) { # if Q_i not sufficient
     
     sc <-  (p_min / phi) * (1 - epsilon) # get scaling factor required to bring prob phi under tolerance value - with slight over-adjustment to stop any asymptotic behaviour
     y_peak <- which.max(term_y)  # find biggest term in phi
     
     P_target <- P_Q_insuff[y_peak] * sc # get target for reduced contribution from biggest term 
     
-    B <- pwlquant(Forecast_quantiles, q_vals, num_q_vals, y_peak,(1 - P_target))     # get from forecast the demand associated with that target probability 
+    B <- pwlquant(Forecast_quantiles, q_vals, num_q_vals, y_peak, (1 - P_target))     # get from forecast the demand associated with that target probability 
     
     Q_i <- B + min_stock - inv_i - Q_out # set Q_i to be sufficient reduce bring biggest term in phi by sc - amount determined above.
 

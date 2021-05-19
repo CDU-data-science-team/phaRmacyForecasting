@@ -1,4 +1,5 @@
-Q_toomuch_Q <- function(forecast_q, o_orders, choose_distribution) {
+Q_toomuch_Q <- function(forecast_q, o_orders, choose_distribution, current_q_i,
+                        max_stock, p_max, inv_i) {
   
   # function indicates if Q_i meets storage condition and, if not, gives next Q_i to try  
   
@@ -6,16 +7,18 @@ Q_toomuch_Q <- function(forecast_q, o_orders, choose_distribution) {
   flag2 = 0
   P_Q_toomuch <- c(rep(1, nrow(forecast_q))) # initialise as too much
   Prob_x <-c(rep(0, nrow(forecast_q))) # initialise to zero
-  term_x <- c(rep(0, nrow(forecast_q)))  
-  
+  term_x <- c(rep(0, nrow(forecast_q)))
+  num_q_vals <- nrow(forecast_q)
+  q_vals <- c(seq(0,1, 1 / (num_q_vals - 1)))
   Q_out <- sum(o_orders$Ord_quant)
+  Q_i <- current_q_i
   
-  for (x in seq(1, nrow(forecast_q), 1)){
+  for (x in seq(1, num_q_vals, 1)){
     
     Prob_x[x] <- choose_distribution$cdf(x) - choose_distribution$cdf(x - 1)  # probability that this delivery will be on day x
     
     P_Q_toomuch[x] <- pwlcdf(
-      forecast_q, q_vals, num_q_vals, x, inv_i + Q_out + Q_i - max_stock
+      forecast_q, q_vals, num_q_vals, x, Q_i + Q_out + Q_i - max_stock
     ) # gives probability that, if this delivery arrives at time x, it will breach storage constraint
   }
   

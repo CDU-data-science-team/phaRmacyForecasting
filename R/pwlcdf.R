@@ -1,4 +1,4 @@
-pwlcdf <-function(Forecast_quantiles, q_vals, num_q_vals, time_point, x){ # set up as piece wise linear from input.
+pwlcdf <- function(Forecast_quantiles, q_vals, num_q_vals, time_point, x){ # set up as piece wise linear from input.
   
   res <- numeric(length(x))
   
