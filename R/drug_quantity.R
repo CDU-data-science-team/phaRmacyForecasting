@@ -68,7 +68,13 @@ drug_quantity <- function(forecast, distribution, min_stock, max_stock,
 
       # returns whether Q_i satisfies storage condition and next Q_i to try
       
-      tmp2 <- phaRmacyForecasting:::Q_toomuch_Q() 
+      tmp2 <- phaRmacyForecasting:::Q_toomuch_Q(forecast_q = Forecast_quantiles, 
+                                                o_orders = Outstanding_orders,
+                                                choose_distribution = distribution,
+                                                current_q_i = Q_i,
+                                                max_stock = max_stock,
+                                                p_max = p_max,
+                                                inv_i = inv_i) 
       
       Q_i <- tmp2[1]
       flag_stor <- tmp2[2]
@@ -82,12 +88,19 @@ drug_quantity <- function(forecast, distribution, min_stock, max_stock,
     
     while(flag_suf < 1 & dummy_counter_3 < MaxLoops){
       dummy_counter_3 <- dummy_counter_3 + 1
-      tmp3 <- phaRmacyForecasting:::Q_enough_Delta()
+      tmp3 <- phaRmacyForecasting:::Q_enough_Delta(Forecast_quantiles,
+                                                   choose_distribution = distribution,
+                                                   Delta_i,
+                                                   inv_i = inv_i,
+                                                   current_q_i = Q_i,
+                                                   min_stock, 
+                                                   p_min)
       
       Delta_i <- tmp3[1]
       flag_suf <- tmp3[2]
       
     }
   }
-  return(Q_i)
+  return(list("Q_i" = Q_i, 
+              "Delta_i" = Delta_i))
 }

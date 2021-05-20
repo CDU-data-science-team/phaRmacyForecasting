@@ -1,24 +1,28 @@
-Q_enough_Delta <- function(){
+Q_enough_Delta <- function(forecast_q, choose_distribution, Delta_i, inv_i, current_q_i,
+                           min_stock, p_min){
   
   # determines whether Q_i is sufficient and, if not, suggests next Delta_i to try 
   # function used when Q_i has been reduced to meet storage condition
   
   epsilon <- 0.01
   flag1 <- 0
-  P_Q_insuff <- c(rep(1, Forecast_length)) # initialise as insufficient
-  Prob_y <-c(rep(0, Forecast_length)) # initialise to zero
-  term_y <- c(rep(0, Forecast_length))  
+  P_Q_insuff <- c(rep(1, nrow(forecast_q))) # initialise as insufficient
+  Prob_y <-c(rep(0, nrow(forecast_q))) # initialise to zero
+  term_y <- c(rep(0, nrow(forecast_q)))
+  Q_i <- current_q_i
+  num_q_vals <- nrow(forecast_q)
+  q_vals <- c(seq(0,1, 1 / (num_q_vals - 1))) # set up vector of quantile levels - evenly spaced for now
   
   Q_out <- sum(Outstanding_orders$Ord_quant)
   
   # now set probabilities for next delivery arriving at time y CHECK DISCRETISATION AGAINST FORECAST
   # and Q_i being insufficient if that is the case
   
-  for (y in seq(1, Forecast_length, 1)){    # all this as per Q_enough_Q
+  for (y in seq(1, nrow(forecast_q), 1)){    # all this as per Q_enough_Q
     
-    Prob_y[y] <- lead_time_dis$cdf(y - Delta_i)- lead_time_dis$cdf(y - Delta_i - 1)
+    Prob_y[y] <- choose_distribution$cdf(y - Delta_i) - choose_distribution$cdf(y - Delta_i - 1)
     P_Q_insuff[y] <- 1 - pwlcdf(
-      Forecast_quantiles, q_vals, num_q_vals, y, inv_i + Q_out + Q_i - min_stock)
+      forecast_q, q_vals, num_q_vals, y, inv_i + Q_out + Q_i - min_stock)
   }
   
   term_y <- Prob_y * P_Q_insuff  

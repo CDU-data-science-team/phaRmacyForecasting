@@ -30,6 +30,8 @@ usethis::use_package( "fable.prophet" )
 usethis::use_package( "dplyr" )
 usethis::use_package( "fabletools" )
 usethis::use_package( "feasts" )
+usethis::use_package( "dplyr" )
+usethis::use_package( "distr6" )
 
 ## Add modules ----
 ## Create a module infrastructure in R/
@@ -50,10 +52,11 @@ golem::add_css_file( "custom" )
 ## Add internal datasets ----
 ## If you have data in your package
 usethis::use_data_raw( name = "pharmacy", open = FALSE )
+usethis::use_data_raw( name = "stock_functions", open = FALSE )
 
 ## Tests ----
 ## Add one line by test you want to create
-usethis::use_test( "data_forecast" )
+usethis::use_test( "drug_quantity" )
 
 # Documentation
 
