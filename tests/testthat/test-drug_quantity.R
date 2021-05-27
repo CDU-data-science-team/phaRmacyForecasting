@@ -1,4 +1,4 @@
-test_that("drug ordering quanity works", {
+testthat::test_that("drug ordering quantity works", {
   
   # set seed for sampling for dev/test
   

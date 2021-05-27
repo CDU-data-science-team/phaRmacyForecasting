@@ -9,6 +9,7 @@
 #' @param inv_i int the inventory at the time of this (the i'th) order
 #' @param delta_pref int the preferred order interval for drug in question
 #' @return number giving amount to order
+#' @export
 drug_quantity <- function(forecast, distribution, min_stock, max_stock,
                           p_min, p_max, inv_i, delta_pref) {
 
