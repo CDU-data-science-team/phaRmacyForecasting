@@ -1,9 +1,7 @@
 test_that("Data produced correctly", {
   
-  library(dplyr)
-  
   test_data <- pharmacy %>% 
-    filter(Site1 == "Site A", NSVCode == "Drug A")
+    dplyr::filter(Site1 == "Site A", NSVCode == "Drug A")
   
   daily_data <- make_tsibble(test_data, frequency = "Daily")
   
@@ -15,18 +13,16 @@ test_that("Data produced correctly", {
   
 })
 
-# test_that("Forecast produced", {
-# 
-#   library(dplyr)
-# 
-#   test_data <- pharmacy %>%
-#     filter(Site1 == "Site A")
-# 
-#   daily_data <- make_tsibble(test_data, frequency = "Daily")
-# 
-#   weekly_data <- make_tsibble(test_data, frequency = "Weekly")
-# 
-#   daily_forecast <- forecast_series(daily_data, 42, frequency = "Daily")
-# 
-#   weekly_forecast <- forecast_series(daily_data, 6, frequency = "Weekly")
-# })
+test_that("Forecast produced", {
+
+  test_data <- pharmacy %>%
+    dplyr::filter(Site1 == "Site A")
+
+  daily_data <- make_tsibble(test_data, frequency = "Daily")
+
+  weekly_data <- make_tsibble(test_data, frequency = "Weekly")
+
+  daily_forecast <- forecast_series(daily_data, 42, frequency = "Daily")
+
+  weekly_forecast <- forecast_series(daily_data, 6, frequency = "Weekly")
+})

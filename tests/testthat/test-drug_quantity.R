@@ -14,7 +14,15 @@ testthat::test_that("drug ordering quantity works", {
                                           upper = 10.5,
                                           mode = 4)
   
-  test_stock <- drug_quantity(forecast = simulated_forecast, # simulated forecast for now
+  test_data <- pharmacy %>%
+    dplyr::filter(Site1 == "Site C", NSVCode == "Drug A")
+  
+  daily_data <- phaRmacyForecasting:::make_tsibble(test_data, frequency = "Daily")
+  
+  test_forecast <- phaRmacyForecasting:::forecast_series(daily_data, 
+                                                         42, frequency = "Daily")
+  
+  test_stock <- drug_quantity(forecast = test_forecast, # simulated forecast for now
                               distribution = lead_time_dis,
                               min_stock = 100,
                               max_stock = 800,

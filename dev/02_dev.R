@@ -57,6 +57,7 @@ usethis::use_data_raw( name = "stock_functions", open = FALSE )
 ## Tests ----
 ## Add one line by test you want to create
 usethis::use_test( "drug_quantity" )
+usethis::use_test( "quantiles" )
 
 # Documentation
 
