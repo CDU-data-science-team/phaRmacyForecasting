@@ -1,14 +1,14 @@
 #' Make quantiles from a forecast 
 #' 
 #' @param forecast dataframe with two columns- mean_demand and sd_demand
-#' @param num_q_vals number of quantiles plus 1 (defaults to 101)
+#' @param num_q_vals number of quantiles plus 1 (defaults to 10)
 #' @return matrix of quantiles
-make_quantiles <- function(forecast, model = "ETS"){
+make_quantiles <- function(forecast, model = "ETS", num_q_vals = 10){
   
   final_forecast <- forecast %>% 
     dplyr::filter(.model == model)
   
-  quantiles <- purrr::map_dfc(seq(0.1, .9, .1), function(q) {
+  quantiles <- purrr::map_dfc(seq(1/num_q_vals, 1-(1/num_q_vals), 1/num_q_vals), function(q) {
     
     purrr::map_dbl(1 : nrow(final_forecast), function(x){
       
