@@ -30,7 +30,7 @@ drug_quantity <- function(forecast, distribution, min_stock, max_stock,
     # returns whether Q_i sufficient and next Q_i to try
     
     tmp1 <- phaRmacyForecasting:::Q_enough_Q(
-      distribution, inv_i, Outstanding_orders, Forecast_quantiles, 
+      distribution, inv_i, Q_i, Outstanding_orders, Forecast_quantiles, 
       delta_pref, min_stock, p_min)
     
     Q_i = tmp1[1]
