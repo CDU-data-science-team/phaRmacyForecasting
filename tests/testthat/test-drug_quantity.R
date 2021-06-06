@@ -8,9 +8,9 @@ testthat::test_that("drug ordering quantity works", {
   
   # set distribution for delivery lead time
   
-  lead_time_dis <- distr6::Triangular$new(lower = 1.5, 
-                                          upper = 10.5,
-                                          mode = 4)
+  lead_time_dis <- distr6::Triangular$new(lower = lower_lead, 
+                                          upper = upper_lead,
+                                          mode = mode_lead)
   
   test_stock <- drug_quantity(forecast = simulated_forecast, # simulated forecast for now
                               distribution = lead_time_dis,

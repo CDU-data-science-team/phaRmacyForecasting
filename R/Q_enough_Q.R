@@ -20,7 +20,7 @@ Q_enough_Q <- function(lead_time_dis, inv_i, current_q_i, Outstanding_orders,
     
     Prob_y[y] <- lead_time_dis$cdf(y - Delta_i) - lead_time_dis$cdf(y - Delta_i - 1)
     
-    P_Q_insuff[y] <- 1 - pwlcdf(
+    P_Q_insuff[y] <- 1 - phaRmacyForecasting:::pwlcdf(
       Forecast_quantiles, q_vals, num_q_vals, y, inv_i + Q_out + Q_i - min_stock) # returns probability that demand up to and including day y eats into emergency stock
   }
   
@@ -35,7 +35,7 @@ Q_enough_Q <- function(lead_time_dis, inv_i, current_q_i, Outstanding_orders,
     
     P_target <- P_Q_insuff[y_peak] * sc # get target for reduced contribution from biggest term 
     
-    B <- pwlquant(Forecast_quantiles, q_vals, num_q_vals, y_peak, (1 - P_target))     # get from forecast the demand associated with that target probability 
+    B <- phaRmacyForecasting:::pwlquant(Forecast_quantiles, q_vals, num_q_vals, y_peak, (1 - P_target))     # get from forecast the demand associated with that target probability 
     
     Q_i <- B + min_stock - inv_i - Q_out # set Q_i to be sufficient reduce bring biggest term in phi by sc - amount determined above.
 

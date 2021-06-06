@@ -18,7 +18,7 @@ drug_quantity <- function(forecast, distribution, min_stock, max_stock,
   Delta_i = delta_pref # initialise time to next order
   flag_suf = 0 # initialise a flag indicating (=1) that Q_i is sufficent 
   flag_stor = 0 # initialise a flag indicating (=1) that Q_i is not too much 
-  Forecast_quantiles <- make_quantiles(simulated_forecast)
+  Forecast_quantiles <- phaRmacyForecasting:::make_quantiles(simulated_forecast)
   
   tmp1 <- c(0,0) # dummy storage for Q_i and flag_suf 
   dummy_counter <- 0
@@ -31,7 +31,7 @@ drug_quantity <- function(forecast, distribution, min_stock, max_stock,
     
     tmp1 <- phaRmacyForecasting:::Q_enough_Q(
       distribution, inv_i, Q_i, Outstanding_orders, Forecast_quantiles, 
-      delta_pref, min_stock, p_min)
+      Delta_i, min_stock, p_min)
     
     Q_i = tmp1[1]
     
