@@ -8,7 +8,7 @@ Q_enough_Q <- function(lead_time_dis, inv_i, current_q_i, Outstanding_orders,
   P_Q_insuff <- c(rep(1, nrow(Forecast_quantiles))) # this is the prob that, if next  order delivered at time y, Q_i for this order will be insufficient to meet demand to then
   Prob_y <-c(rep(0, nrow(Forecast_quantiles))) # initialise to zero - this is the probability that the next order is delivered at time y
   term_y <- c(rep(0, nrow(Forecast_quantiles))) # 
-  num_q_vals <- nrow(Forecast_quantiles)
+  num_q_vals <- ncol(Forecast_quantiles)
   q_vals <- c(seq(0,1, 1 / (num_q_vals - 1))) # set up vector of quantile levels - evenly spaced for now
   Q_i <- current_q_i
   Q_out <- sum(Outstanding_orders$Ord_quant) # quantity associated with outstanding orders
