@@ -18,7 +18,7 @@ Q_toomuch_Q <- function(forecast_q, o_orders, choose_distribution, current_q_i,
     Prob_x[x] <- choose_distribution$cdf(x) - choose_distribution$cdf(x - 1)  # probability that this delivery will be on day x
     
     P_Q_toomuch[x] <- pwlcdf(
-      forecast_q, q_vals, num_q_vals, x, Q_i + Q_out + Q_i - max_stock
+      forecast_q, q_vals, num_q_vals, x, inv_i + Q_out + Q_i - max_stock
     ) # gives probability that, if this delivery arrives at time x, it will breach storage constraint
   }
   

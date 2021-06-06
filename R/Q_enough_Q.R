@@ -2,7 +2,6 @@ Q_enough_Q <- function(lead_time_dis, inv_i, Outstanding_orders,
                        Forecast_quantiles, Delta_i, min_stock, p_min){
   
   # This function assesses whether Q_i will be sufficient and, if not, suggests next Q_i to try  
-  Q_i = 0 # initialise order quantity
   epsilon <- 0.01
   flag1 = 0     # initialise as insufficient
   phi = 1 # this is the probability that order is insufficient

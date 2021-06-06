@@ -1,4 +1,4 @@
-Q_enough_Delta <- function(forecast_q, choose_distribution, Delta_i, inv_i, current_q_i,
+Q_enough_Delta <- function(forecast_q, choose_distribution, d_i, inv_i, current_q_i,
                            min_stock, p_min){
   
   # determines whether Q_i is sufficient and, if not, suggests next Delta_i to try 
@@ -20,7 +20,7 @@ Q_enough_Delta <- function(forecast_q, choose_distribution, Delta_i, inv_i, curr
   
   for (y in seq(1, nrow(forecast_q), 1)){    # all this as per Q_enough_Q
     
-    Prob_y[y] <- choose_distribution$cdf(y - Delta_i) - choose_distribution$cdf(y - Delta_i - 1)
+    Prob_y[y] <- choose_distribution$cdf(y - d_i) - choose_distribution$cdf(y - d_i - 1)
     P_Q_insuff[y] <- 1 - pwlcdf(
       forecast_q, q_vals, num_q_vals, y, inv_i + Q_out + Q_i - min_stock)
   }
@@ -29,7 +29,7 @@ Q_enough_Delta <- function(forecast_q, choose_distribution, Delta_i, inv_i, curr
   
   phi <- sum(term_y)
   
-  if (phi > p_min) { # Q_i insufficient given current value of Delta_i
+  if (phi > p_min) { # Q_i insufficient given current value of d_i
     
     sc <-  (p_min / phi) * (1 - epsilon) # get reduction required in phi
     y_peak <- which.max(term_y) # find biggest term in phi
@@ -48,17 +48,17 @@ Q_enough_Delta <- function(forecast_q, choose_distribution, Delta_i, inv_i, curr
       test <- Prob_y[y_hat]
     }
     
-    Delta_i <- Delta_i -(y_hat - y_peak)
+    d_i <- d_i -(y_hat - y_peak)
     
   } else {
     
     flag1 = 1        
   }
-  if (Delta_i < 1) {
+  if (d_i < 1) {
     print("CANNOT BE SOLVED WITH CURRENT INPUTS - REVISE STORAGE CONSTRAINT, 
                           EMERGENCY STOCK OR TOLERANCES")
   } 
-  res <- c(Delta_i, flag1)
+  res <- c(d_i, flag1)
   
   return(res)
 }

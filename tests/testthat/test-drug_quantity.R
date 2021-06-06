@@ -2,8 +2,6 @@ testthat::test_that("drug ordering quantity works", {
   
   # set seed for sampling for dev/test
   
-  set.seed(456)
-  
   lower_lead = 1.5 # discrete min - 0.5
   upper_lead = 10.5 # discrete max - 0.5
   mode_lead = 4 # discrete mode

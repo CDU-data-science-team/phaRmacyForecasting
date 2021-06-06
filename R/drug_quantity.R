@@ -91,7 +91,7 @@ drug_quantity <- function(forecast, distribution, min_stock, max_stock,
       dummy_counter_3 <- dummy_counter_3 + 1
       tmp3 <- phaRmacyForecasting:::Q_enough_Delta(Forecast_quantiles,
                                                    choose_distribution = distribution,
-                                                   Delta_i,
+                                                   d_i = Delta_i,
                                                    inv_i = inv_i,
                                                    current_q_i = Q_i,
                                                    min_stock, 
