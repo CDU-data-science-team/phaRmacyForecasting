@@ -1,4 +1,4 @@
-Q_enough_Delta <- function(forecast_q, choose_distribution, Delta_i, inv_i, current_q_i,
+Q_enough_Delta <- function(forecast_q, choose_distribution, d_i, inv_i, current_q_i,
                            min_stock, p_min){
   
   # determines whether Q_i is sufficient and, if not, suggests next Delta_i to try 
@@ -10,9 +10,9 @@ Q_enough_Delta <- function(forecast_q, choose_distribution, Delta_i, inv_i, curr
   Prob_y <-c(rep(0, nrow(forecast_q))) # initialise to zero
   term_y <- c(rep(0, nrow(forecast_q)))
   Q_i <- current_q_i
-  num_q_vals <- nrow(forecast_q)
+  num_q_vals <- ncol(forecast_q)
   q_vals <- c(seq(0,1, 1 / (num_q_vals - 1))) # set up vector of quantile levels - evenly spaced for now
-  
+  Delta_i <- d_i
   Q_out <- sum(Outstanding_orders$Ord_quant)
   
   # now set probabilities for next delivery arriving at time y CHECK DISCRETISATION AGAINST FORECAST
@@ -21,7 +21,7 @@ Q_enough_Delta <- function(forecast_q, choose_distribution, Delta_i, inv_i, curr
   for (y in seq(1, nrow(forecast_q), 1)){    # all this as per Q_enough_Q
     
     Prob_y[y] <- choose_distribution$cdf(y - Delta_i) - choose_distribution$cdf(y - Delta_i - 1)
-    P_Q_insuff[y] <- 1 - pwlcdf(
+    P_Q_insuff[y] <- 1 - phaRmacyForecasting:::pwlcdf(
       forecast_q, q_vals, num_q_vals, y, inv_i + Q_out + Q_i - min_stock)
   }
   

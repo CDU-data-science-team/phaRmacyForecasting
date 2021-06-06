@@ -14,7 +14,7 @@ make_quantiles <- function(forecast, num_q_vals = 101){
       
       # use normal input to set test quantiles
       
-      Forecast_quantiles[t,i] <- max(0, qnorm(q_vals[i], simulated_forecast$mean_demand[t], 
+      Forecast_quantiles[t,i] <- max(0, qnorm(q_vals[i], forecast$mean_demand[t], 
                                               forecast$sd_demand[t]))
     }  
     # force a 0th percentile  
