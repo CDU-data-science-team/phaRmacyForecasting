@@ -9,7 +9,7 @@ make_quantiles <- function(forecast, model = "ETS", num_q_vals = 10){
     dplyr::filter(.model == model)
   
   quantiles <- purrr::map_dfc(seq(1/num_q_vals, 1-(1/num_q_vals), 1/num_q_vals), function(q) {
-    
+
     purrr::map_dbl(1 : nrow(final_forecast), function(x){
       
       final_forecast %>% 
