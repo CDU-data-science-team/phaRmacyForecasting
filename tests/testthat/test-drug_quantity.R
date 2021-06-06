@@ -21,7 +21,7 @@ testthat::test_that("drug ordering quantity works", {
                               inv_i = 150,
                               delta_pref = 14)
   
-  testthat::expect_equal(test_stock$Q_i, 380.1792)
+  testthat::expect_equal(test_stock$Q_i, 380.1792, tolerance = 1)
   testthat::expect_equal(test_stock$Delta_i, 8)
   
 })
