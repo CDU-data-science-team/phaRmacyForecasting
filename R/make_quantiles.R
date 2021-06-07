@@ -1,31 +1,25 @@
 #' Make quantiles from a forecast 
 #' 
 #' @param forecast dataframe with two columns- mean_demand and sd_demand
-#' @param num_q_vals number of quantiles plus 1 (defaults to 101)
+#' @param num_q_vals number of quantiles plus 1 (defaults to 10)
 #' @return matrix of quantiles
-make_quantiles <- function(forecast, num_q_vals = 101){
+make_quantiles <- function(forecast, model = "ETS", num_q_vals = 10){
   
-  q_vals <- c(seq(0,1, 1/(num_q_vals-1))) # set up vector of quantile levels - evenly spaced for now
+  final_forecast <- forecast %>% 
+    dplyr::filter(.model == model)
   
-  Forecast_quantiles <- matrix(nrow = nrow(forecast), ncol = num_q_vals)
-  
-  for (t in 1 : nrow(simulated_forecast)){
-    for (i in 2 : num_q_vals - 1){
+  quantiles <- purrr::map_dfc(seq(1/num_q_vals, 1-(1/num_q_vals), 1/num_q_vals), function(q) {
+
+    purrr::map_dbl(1 : nrow(final_forecast), function(x){
       
-      # use normal input to set test quantiles
-      
-      Forecast_quantiles[t,i] <- max(0, qnorm(q_vals[i], forecast$mean_demand[t], 
-                                              forecast$sd_demand[t]))
-    }  
-    # force a 0th percentile  
-    
-    Forecast_quantiles[t,1] <- max(0, 2 * Forecast_quantiles[t,2] - Forecast_quantiles[t,3])
-    
-    # force a 100th percentile
-    
-    Forecast_quantiles[t,num_q_vals] <- 2 * Forecast_quantiles[t,num_q_vals - 1] - 
-      Forecast_quantiles[t, num_q_vals - 2] 
-  }
+      final_forecast %>% 
+        tibble::as_tibble() %>% 
+        dplyr::slice_head(n = x) %>% 
+        dplyr::summarise(centile = quantile(sum(quantity), q)) %>% 
+        dplyr::pull(centile) %>% 
+        pmax(0, .)
+    })
+  })
   
-  return(Forecast_quantiles)
+  return(quantiles %>% as.matrix())
 }
