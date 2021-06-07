@@ -21,5 +21,5 @@ make_quantiles <- function(forecast, model = "ETS", num_q_vals = 10){
     })
   })
   
-  return(quantiles)
+  return(quantiles %>% as.matrix())
 }

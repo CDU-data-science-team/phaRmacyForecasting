@@ -10,7 +10,7 @@ test_that("quantiles generated", {
   test_forecast <- phaRmacyForecasting:::forecast_series(daily_data, 
                                                          42, frequency = "Daily")
   
-  quantiles <- make_quantiles(test_forecast, model = "ETS")
+  quantiles <- phaRmacyForecasting:::make_quantiles(test_forecast, model = "ETS")
   
   testthat::expect_equal(nrow(quantiles), 42)
 })
