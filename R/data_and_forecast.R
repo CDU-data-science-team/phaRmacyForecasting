@@ -1,7 +1,7 @@
 
 # data and forecasts
 
-make_tsibble <- function(data, frequency = c("Daily", "Weekly")){
+make_tsibble <- function(data, frequency = "Daily"){
   
   if(frequency == "Weekly"){
     
@@ -20,7 +20,7 @@ make_tsibble <- function(data, frequency = c("Daily", "Weekly")){
     tsibble::fill_gaps(quantity = 0)
 }
 
-forecast_series <- function(data, horizon, frequency = c("Daily", "Weekly")){
+forecast_series <- function(data, horizon, frequency = "Daily"){
   
   drug_train <- data %>% 
     head(-horizon)
@@ -39,10 +39,10 @@ forecast_series <- function(data, horizon, frequency = c("Daily", "Weekly")){
                       fable::ARIMA(quantity),
                       fable::ETS(quantity ~ season(method = values[2])),
                       fable.prophet::prophet(quantity)) %>%
-    forecast::forecast(h = horizon) %>% 
-    # tibble::as_tibble() %>% 
+    fabletools::forecast(h = horizon) %>% 
+    tibble::as_tibble() %>% 
     dplyr::mutate(.model = dplyr::case_when(
-      
+
       grepl("SNAIVE", .model) ~ "SNAIVE",
       grepl("ARIMA", .model) ~ "ARIMA",
       grepl("ETS", .model) ~ "ETS",
