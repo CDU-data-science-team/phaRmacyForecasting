@@ -2,7 +2,6 @@
 library(tidyverse)
 
 load("data/pharmacy.rda")
-load("data/simulated_forecast.rda")
 load("data/Outstanding_orders.rda")
 
 # set seed for sampling for dev/test
