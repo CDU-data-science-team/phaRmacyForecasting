@@ -37,8 +37,9 @@ forecast_series <- function(data, horizon, frequency = "Daily"){
   drug_train %>% 
     fabletools::model(fable::SNAIVE(quantity ~ lag(values[1])), 
                       fable::ARIMA(quantity),
-                      fable::ETS(quantity ~ season(method = values[2])),
-                      fable.prophet::prophet(quantity)) %>%
+                      fable::ETS(quantity ~ season(method = values[2]))#,
+                      # fable.prophet::prophet(quantity)
+                      ) %>%
     fabletools::forecast(h = horizon) %>% 
     tibble::as_tibble() %>% 
     dplyr::mutate(.model = dplyr::case_when(

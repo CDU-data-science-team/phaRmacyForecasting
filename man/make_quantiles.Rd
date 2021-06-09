@@ -4,7 +4,7 @@
 \alias{make_quantiles}
 \title{Make quantiles from a forecast}
 \usage{
-make_quantiles(forecast, model = "ETS", num_q_vals = 10)
+make_quantiles(forecast, num_q_vals = 10)
 }
 \arguments{
 \item{forecast}{dataframe with two columns- mean_demand and sd_demand}
