@@ -22,8 +22,7 @@ make_tsibble <- function(data, frequency = "Daily"){
 
 forecast_series <- function(data, horizon, frequency = "Daily"){
   
-  drug_train <- data %>% 
-    head(-horizon)
+  drug_train <- data
   
   if(frequency == "Daily"){
     
@@ -35,25 +34,18 @@ forecast_series <- function(data, horizon, frequency = "Daily"){
   }
   
   drug_train %>% 
-    fabletools::model(fable::SNAIVE(quantity ~ lag(values[1])), 
-                      fable::ARIMA(quantity),
-                      fable::ETS(quantity ~ season(method = values[2])),
-                      fable.prophet::prophet(quantity)) %>%
-    fabletools::forecast(h = horizon) %>% 
-    tibble::as_tibble() %>% 
-    dplyr::mutate(.model = dplyr::case_when(
-
-      grepl("SNAIVE", .model) ~ "SNAIVE",
-      grepl("ARIMA", .model) ~ "ARIMA",
-      grepl("ETS", .model) ~ "ETS",
-      grepl("prophet", .model) ~ "Prophet"
-    ))
+    fabletools::model("MEAN" = fable::MEAN(quantity),
+                      "SNAIVE" = fable::SNAIVE(quantity ~ lag(values[1])), 
+                      "PROPHET" = fable.prophet::prophet(quantity),
+                      "ARIMA" = fable::ARIMA(quantity),
+                      "ETS" = fable::ETS(quantity ~ season(method = values[2]))) %>%
+    fabletools::forecast(h = horizon)
 }
 
-plot_forecast <- function(forecast_value, data, horizon){
+plot_forecast <- function(forecast_value, data, horizon, model){
   
-  forecast_value %>% 
-    dplyr::bind_rows(data %>% 
+  tibble::as_tibble(forecast_value) %>% 
+    dplyr::bind_rows(tibble::as_tibble(data) %>% 
                        tail(horizon) %>% 
                        dplyr::rename(.mean = quantity) %>% 
                        dplyr::mutate(.model = "Actual")) %>% 
@@ -63,10 +55,10 @@ plot_forecast <- function(forecast_value, data, horizon){
     ggplot2::geom_line() + ggplot2::facet_wrap( ~ .model)
 }
 
-show_accuracy <- function(forecast_value, data){
+show_accuracy <- function(forecast_value, data, horizon){
   
   forecast_value %>% 
     fabletools::accuracy(data) %>% 
-    dplyr::mutate(across(where(is.numeric), signif, 3)) %>%
+    dplyr::mutate(dplyr::across(tidyselect:::where(is.numeric), signif, 3)) %>%
     dplyr::select(model = .model, MAE)
 }
