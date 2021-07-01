@@ -20,7 +20,6 @@ Imports:
     shinydashboard,
     tsibble,
     fable,
-    fasster,
     prophet,
     ggplot2,
     lubridate,
@@ -29,7 +28,8 @@ Imports:
     fable.prophet,
     dplyr,
     fabletools,
-    feasts
+    feasts,
+    distr6
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1

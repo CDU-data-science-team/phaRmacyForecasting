@@ -66,7 +66,8 @@ mod_forecasts_server <- function(id, filter_data){
     
     forecast <- reactive({
       
-      forecast_series(pass_data(), horizon(), frequency = input$dailyWeekly)
+      forecast_series(pass_data() %>% head(-horizon()), 
+                      horizon(), frequency = input$dailyWeekly)
     })
     
     output$summaryForecast <- renderPlot({
