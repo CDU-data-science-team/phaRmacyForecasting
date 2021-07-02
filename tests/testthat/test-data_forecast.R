@@ -7,7 +7,7 @@ test_that("Data produced correctly", {
   
   weekly_data <- make_tsibble(test_data, frequency = "Weekly")
   
-  testthat::expect_equal(nrow(daily_data), 2312)
+  testthat::expect_equal(nrow(daily_data), 2313)
   
   testthat::expect_equal(nrow(weekly_data), 330)
   
