@@ -26,8 +26,10 @@ Nweekdays <- function(a, b, holidays, weekend) {
   sum(!weekdays(possible_days) %in% weekend & !possible_days %in% holidays)
 }
 
-
 # Set up tables
+
+forecast_method <- c("ETS", "SNAIVE", "ARIMA")
+
 Run_number <- 1:200
 results <- tibble::tibble(DrugDescription = NA, NSVCode = NA, Run_number, 
                           DailyInv = 0, No.Stockouts = 0, No.Orders = 0, 
@@ -54,8 +56,6 @@ z <- 1
 
 # chem = individual drug
 chem <- 1   
-# lin = individual forecasting method
-lin <- 1
 inv_row <- 977
 start_row <- 978
 end_row <- 1291
@@ -116,243 +116,249 @@ for(chem in 1:nrow(TestDrugs)){
                      Total_Qty = 0, Ward = "NA", Site1 = site)) %>% 
     dplyr::arrange(Log_Date_Time) %>% 
     dplyr::group_by(Log_Date_Time, NSVCode, Site1) %>% 
-    dplyr::summarise(Issues = sum(Total_Qty)) %>% ungroup() %>% 
+    dplyr::summarise(Issues = sum(Total_Qty)) %>% 
+    dplyr::ungroup() %>% 
     tidyr::complete(Log_Date_Time = seq.Date(min(Log_Date_Time), 
-                                      max(Log_Date_Time), by = "day")) %>% 
-    replace_na(list(NSVCode = nsvcode, 
-                    Site1 = site, 
-                    Issues = 0))
+                                             max(Log_Date_Time), by = "day")) %>% 
+    tidyr::replace_na(list(NSVCode = nsvcode, 
+                           Site1 = site, 
+                           Issues = 0))
   
   # Extract returned quantities
   use_returns <- use1 %>% 
-    filter(Total_Qty < 0) %>% 
-    group_by(Log_Date_Time, NSVCode, Site1) %>% 
-    summarise(Return = sum(Total_Qty)) %>% 
-    ungroup() %>% 
-    mutate(Returns = abs(Return))
+    dplyr::filter(Total_Qty < 0) %>% 
+    dplyr::group_by(Log_Date_Time, NSVCode, Site1) %>% 
+    dplyr::summarise(Return = sum(Total_Qty)) %>% 
+    dplyr::ungroup() %>% 
+    dplyr::mutate(Returns = abs(Return))
   
   # Create time series table for simulation
-  sim_table1 <- left_join(use_issues, use_returns, 
-                          by = c("Log_Date_Time" = "Log_Date_Time", 
-                                 "NSVCode" = "NSVCode", 
-                                 "Site1" = "Site1")) %>% 
-    select(1,2,3,4,5,7) %>% 
-    replace_na(list(Returns = 0)) %>% 
-    mutate(DailyInvLevel = 0, Q_i = 0, OrderQtyinPacksize = 0, Delta_i = 0, Delta_pref = 0, OrderDay = "N", 
-           ReceivedQty = 0, Stockouts = 0) 
-  
+  sim_table1 <- dplyr::left_join(use_issues, use_returns, 
+                                 by = c("Log_Date_Time" = "Log_Date_Time", 
+                                        "NSVCode" = "NSVCode", 
+                                        "Site1" = "Site1")) %>% 
+    tidyr::replace_na(list(Returns = 0)) %>% 
+    dplyr::mutate(DailyInvLevel = 0, 
+                  Q_i = 0, 
+                  OrderQtyinPacksize = 0, 
+                  Delta_i = 0, 
+                  Delta_pref = 0, 
+                  OrderDay = "N",
+                  ReceivedQty = 0, 
+                  Stockouts = 0) 
   
   sim_table1$WeekDay <- weekdays(as.Date(sim_table1$Log_Date_Time))
-  sim_table1 <- sim_table1[,c(1,15,2,3,4,5,6,7,8,9,10,11,12,13,14)]
+  sim_table1 <- sim_table1 %>% 
+    dplyr::select(Log_Date_Time, WeekDay, everything())
   
   # for loop for each forecasting method
-  for(lin in 1:nrow(ForecastMethod)){
-    
-    forecast_type <- ForecastMethod %>% filter( Label == lin) 
-    
-    RunNo <- 1
-    
-    # for loop for number of runs for each drug / forecasting method combination
-    for (i in 1:1){
-      
-      sim_table <- sim_table1 %>% filter(WeekDay != "Saturday", WeekDay != "Sunday")
-      day <- start_row
-      leadrow <- 1
-      RunNo <- 1
-      
-      # Nominal starting inventory of 10 packs
-      starting_inv <- packsize*10
-      sim_table$DailyInvLevel[inv_row] <- starting_inv
-      sim_table$OrderDay[start_row] <- "Y"
-      sim_table$Delta_pref[start_row] <- 10
-      
-      
-      # for loop for each day in specified date range
-      for (day in start_row:nrow(sim_table)[1]){
-        if(day <= end_row){
-          if (sim_table$OrderDay[day] == "Y") {
+  # for(method in forecast_method){
+  
+  method <- "ETS"
+  
+  RunNo <- 1
+  
+  # for loop for number of runs for each drug / forecasting method combination
+  # for (i in 1:1){
+  i <- 1
+  
+  sim_table <- sim_table1 %>% 
+    dplyr::filter(WeekDay != "Saturday", WeekDay != "Sunday")
+  
+  day <- start_row
+  leadrow <- 1
+  RunNo <- 1
+  
+  # Nominal starting inventory of 10 packs
+  starting_inv <- packsize * 10
+  sim_table$DailyInvLevel[inv_row] <- starting_inv
+  sim_table$OrderDay[start_row] <- "Y"
+  sim_table$Delta_pref[start_row] <- 10
+  
+  # for loop for each day in specified date range
+  for (day in start_row : nrow(sim_table)){
+    if(day <= end_row){
+      if (sim_table$OrderDay[day] == "Y") {
+        
+        # Calculate daily inventory level 
+        invlevel <- sim_table$DailyInvLevel[day - 1] - sim_table$Issues[day - 1] +
+          sim_table$Returns[day - 1] + sim_table$ReceivedQty[day - 1]
+        
+        # can't have negative inventory level - make it zero
+        sim_table$DailyInvLevel[day] <- ifelse(invlevel < 0, 0, invlevel)
+        
+        # if order is not on usual order day adjust delta_pref so next order day is back on usual order day
+        if(sim_table$WeekDay[day] == UsualOrderDay){
+          Delta_pref <- 10
+          sim_table$Delta_pref[day] <- 10
+        }else if(sim_table$WeekDay[day] == "Monday"){
+          Delta_pref <- 6
+          sim_table$Delta_pref[day] <- 6
+        }else if(sim_table$WeekDay[day] == "Wednesday"){
+          Delta_pref <- 9
+          sim_table$Delta_pref[day] <- 9
+        }else if(sim_table$WeekDay[day] == "Thursday"){
+          Delta_pref <- 8
+          sim_table$Delta_pref[day] <- 8
+        }else if(sim_table$WeekDay[day] == "Friday"){
+          Delta_pref <- 7
+          sim_table$Delta_pref[day] <- 7
+        }
+        
+        # Change names on sim table so that will run through forecating function 
+        sim_table2 <- sim_table %>% 
+          dplyr::rename(Date = Log_Date_Time, Total_Qty = Issues)
+        
+        sim_table2 <- phaRmacyForecasting:::make_tsibble(sim_table2, frequency = "Daily")
+        
+        # extract date from sim (i.e. order date) for forecasting period
+        daterow <- sim_table$Log_Date_Time[day]
+        ForecastDate <- which(grepl(daterow, sim_table2$Date))
+        
+        # code takes into account that forecasting looks back 28 days, so adjusts start date
+        daily_forecast <- phaRmacyForecasting:::forecast_series(sim_table2 %>% 
+                                                                  dplyr::slice(1 : ForecastDate + 27), 28, 
+                                                                frequency = "Daily")
+        
+        actual_forecast <- daily_forecast %>% 
+          dplyr::filter(.model == method)
+        
+        # run inventory model to get Q_i and Delta_i
+        step <- phaRmacyForecasting:::drug_quantity(forecast = actual_forecast,
+                                                    distribution = lead_time_dis,
+                                                    min_stock = packsize,
+                                                    max_stock = 30000,
+                                                    p_min = 0.005,
+                                                    p_max = 0.05,
+                                                    inv_i = sim_table$DailyInvLevel[day],
+                                                    delta_pref = sim_table$Delta_pref[day] )
+        orderqty <- step$Q_i
+        sim_table$Delta_i[day] <- step$Delta_i
+        
+        print(step$Q_i)
+        print("####")
+        print(step$Delta_i)
+        
+        # can't order less than 1 box
+        
+        sim_table$Q_i[day] <- ifelse(orderqty < 0, 0, orderqty)
+        
+        # round order quantity into whole packs
+        sim_table$OrderQtyinPacksize[day] <- ceiling((sim_table$Q_i[day]) / packsize) * packsize
+        
+        # Use triangular distribution to provide a day to receive the order
+        if(sim_table$OrderQtyinPacksize[day] > 0){
+          ActualLeadtime <- extraDistr::rtriang(1, a = leadmin, b = leadmax, c = leadmode) %>% 
+            floor()
+          
+          # If leadtime means stock arrives before that of previously order them rerun leadtime calculation
+          # Assume that orders are processed by wholesaler sequentially
+          while(day + ActualLeadtime - 1 < leadrow) { 
             
-            # Calculate daily inventory level 
-            invlevel <- sim_table$DailyInvLevel[day-1] - sim_table$Issues[day-1] +
-              sim_table$Returns[day-1] + sim_table$ReceivedQty[day-1]
+            print(ActualLeadtime)
             
-            # can't have negative inventory level - make it zero
-            if(invlevel > 0){
-              sim_table$DailyInvLevel[day] <- invlevel
-            }else{
-              sim_table$DailyInvLevel[day] <- 0
-            }
-            
-            
-            # if order is not on usual order day adjust delta_pref so next order day is back on usual order day
-            if(sim_table$WeekDay[day] == UsualOrderDay){
-              Delta_pref <- 10
-              sim_table$Delta_pref[day] <- 10
-            }else if(sim_table$WeekDay[day] == "Monday"){
-              Delta_pref <- 6
-              sim_table$Delta_pref[day] <- 6
-            }else if(sim_table$WeekDay[day] == "Wednesday"){
-              Delta_pref <- 9
-              sim_table$Delta_pref[day] <- 9
-            }else if(sim_table$WeekDay[day] == "Thursday"){
-              Delta_pref <- 8
-              sim_table$Delta_pref[day] <- 8
-            }else if(sim_table$WeekDay[day] == "Friday"){
-              Delta_pref <- 7
-              sim_table$Delta_pref[day] <- 7
-            }
-            
-            # Change names on sim table so that will run through forecating function 
-            sim_table2 <- sim_table %>% rename(Date = 1, Total_Qty = 6)  
-            sim_table2 <- phaRmacyForecasting:::make_tsibble(sim_table2, frequency = "Daily")
-            
-            # extract date from sim (i.e. order date) for forecasting period
-            daterow <- sim_table$Log_Date_Time[day]
-            ForecastDate <- which(grepl(daterow, sim_table2$Date))
-            
-            # code takes into account that forecasting looks back 28 days, so adjusts start date
-            daily_forecast <- phaRmacyForecasting:::forecast_series(sim_table2 %>% 
-                                                                      slice(1 : ForecastDate + 27), 28, 
-                                                                    frequency = "Daily")
-            
-            actual_forecast <- daily_forecast %>% 
-              filter(.model == forecast_type$Method[1])
-            
-            # run inventory model to get Q_i and Delta_i
-            step <- phaRmacyForecasting:::drug_quantity(forecast = actual_forecast,
-                                                        distribution = lead_time_dis,
-                                                        min_stock = packsize,
-                                                        max_stock = 30000,
-                                                        p_min = 0.005,
-                                                        p_max = 0.05,
-                                                        inv_i = sim_table$DailyInvLevel[day],
-                                                        delta_pref = sim_table$Delta_pref[day] )
-            orderqty <- step$Q_i
-            sim_table$Delta_i[day] <- step$Delta_i
-            
-            print(step$Q_i)
-            print("####")
-            print(step$Delta_i)
-            
-            
-            if(orderqty < 1){
-              sim_table$Q_i[day] <- 0
-            }else{
-              sim_table$Q_i[day] <- orderqty
-            }
-            
-            # round order quantity into whole packs
-            sim_table$OrderQtyinPacksize[day] <- (ceiling((sim_table$Q_i[day])/packsize))*packsize
-            
-            # Use triangular distribution to provide a day to receive the order
-            if(sim_table$OrderQtyinPacksize[day] >0){
-              ActualLeadtime <- rtriang(1, a = leadmin, b = leadmax, c = leadmode) %>% floor()
-              
-              # If leadtime means stock arrives before that of previously order them rerun leadtime calculation
-              # Assume that orders are processed by wholesaler sequentially
-              while(day + ActualLeadtime - 1 < leadrow){ 
-                print(ActualLeadtime)
-                ActualLeadtime <- rtriang(1, a = leadmin, b = leadmax, c = leadmode) %>% floor()   }
-              
-              # Multiple orders may arrive on same day, so need to add last quantity from latest order to that of previous order 
-              if(day + ActualLeadtime <= 1305){
-                
-                sim_table$ReceivedQty[day + ActualLeadtime -1] <-  sim_table$ReceivedQty[day + ActualLeadtime -1] + 
-                  sim_table$OrderQtyinPacksize[day]
-              }
-            }else{
-              ActualLeadtime <- 0
-            }
-            
-            # need to consider whether this should be delta_pref or Delta_i
-            # what happens if Delta_i is less than the numbers here?
-            if(day + 10 <= end_row){
-              if(sim_table$WeekDay[day] != UsualOrderDay){
-                if(sim_table$WeekDay[day] == "Monday"){
-                  sim_table$OrderDay[day + 6] <- "Y"
-                  sim_table$Delta_pref[day + 6] <- 10
-                }else if(sim_table$WeekDay[day] == "Wednesday"){
-                  sim_table$OrderDay[day + 9] <- "Y"
-                  sim_table$Delta_pref[day + 9] <- 10
-                }else if(sim_table$WeekDay[day] == "Thursday"){
-                  sim_table$OrderDay[day + 8] <- "Y"
-                  sim_table$Delta_pref[day + 8] <- 10
-                }else if(sim_table$WeekDay[day] == "Friday"){
-                  sim_table$OrderDay[day + 7] <- "Y"
-                  sim_table$Delta_pref[day + 7] <- 10
-                }
-                
-              }else{
-                
-                # Needs to be just Delta_i if current order day isn't included in Delta_i
-                sim_table$OrderDay[day + step$Delta_i] <- "Y"
-              }}
-            
-            leadrow <- day + ActualLeadtime -1
-          }else{
-            # Calculate daily inventory level 
-            invlevel <- sim_table$DailyInvLevel[day-1] - sim_table$Issues[day-1] +
-              sim_table$Returns[day-1] + sim_table$ReceivedQty[day-1]
-            
-            if(invlevel > 0){
-              sim_table$DailyInvLevel[day] <- invlevel
-            }else{
-              sim_table$DailyInvLevel[day] <- 0
-            }     
+            ActualLeadtime <- rtriang(1, a = leadmin, b = leadmax, c = leadmode) %>% floor()
           }
           
-          # extract data from sim - results table is one line for each sim run
-          # Raw_res is full daily sim table for each run (to be able to produce daily inventory level graph)
-          ExtractA <-subset(sim_table, Log_Date_Time >= start_date & Log_Date_Time <= end_date)
-          Extract <- mutate(ExtractA, RunNum = z, Forecast = forecast_type$Method[1])
-          results$DailyInv[z] <- mean(Extract$DailyInvLevel) %>% ceiling()
-          results$No.Orders[z] <- nrow(Extract[Extract$OrderQtyinPacksize > 0,])
-          
-          no <- 1
-          
-          for (entry in 1:nrow(Extract)[1]){
-            if(entry == 1){
-              if(Extract$DailyInvLevel[entry] == 0){
-                Extract$Stockouts[entry] <- no
-                no <- (Extract$Stockouts[entry] + 1) 
-              }
-            }else{
-              if(Extract$DailyInvLevel[entry] == 0){
-                Extract$Stockouts[entry] <- no
-                no <- (Extract$Stockouts[entry] + 1)
-                if(Extract$DailyInvLevel[entry - 1] == 0){
-                  Extract$Stockouts[entry] <- Extract$Stockouts[entry - 1]
-                  no <- (Extract$Stockouts[entry - 1] + 1)
-                }}}
-          }   
-          
-          results$DrugDescription[z] <- drugdescription
-          results$NSVCode[z] <- nsvcode
-          results$No.Stockouts[z] <- max(Extract$Stockouts)
-          results$DateRange[z] <- paste(Extract$Log_Date_Time[1], "-", Extract$Log_Date_Time[nrow(Extract)])
-          results$ForecastMethod[z] <- forecast_type$Method[1]
-          # ForecastMethod$Method[lin]
-          results$No.OrdersNotonOrderDay[z]<-  Extract %>% filter(OrderDay == "Y" & WeekDay != UsualOrderDay) %>% 
-            count()
-          results$MaxInv[z] <- max(Extract$DailyInvLevel) %>% ceiling()
-          results$MinInv[z] <- min(Extract$DailyInvLevel) %>% ceiling()
-          Extract1 <- Extract %>% group_by(Stockouts) %>% count() %>% filter(Stockouts != 0)
-          results$MinStockoutLength[z] <- min(Extract1$n)
-          results$MaxStockoutLength[z] <- max(Extract1$n)   
-          
-          
-          
-          
-        }}
+          # Multiple orders may arrive on same day, so need to add last quantity from latest order to that of previous order 
+          if(day + ActualLeadtime <= 1305){
+            
+            sim_table$ReceivedQty[day + ActualLeadtime -1] <-  sim_table$ReceivedQty[day + ActualLeadtime -1] + 
+              sim_table$OrderQtyinPacksize[day]
+          }
+        }else{
+          ActualLeadtime <- 0
+        }
+        
+        # need to consider whether this should be delta_pref or Delta_i
+        # what happens if Delta_i is less than the numbers here?
+        if(day + 10 <= end_row){
+          if(sim_table$WeekDay[day] != UsualOrderDay){
+            if(sim_table$WeekDay[day] == "Monday"){
+              sim_table$OrderDay[day + 6] <- "Y"
+              sim_table$Delta_pref[day + 6] <- 10
+            }else if(sim_table$WeekDay[day] == "Wednesday"){
+              sim_table$OrderDay[day + 9] <- "Y"
+              sim_table$Delta_pref[day + 9] <- 10
+            }else if(sim_table$WeekDay[day] == "Thursday"){
+              sim_table$OrderDay[day + 8] <- "Y"
+              sim_table$Delta_pref[day + 8] <- 10
+            }else if(sim_table$WeekDay[day] == "Friday"){
+              sim_table$OrderDay[day + 7] <- "Y"
+              sim_table$Delta_pref[day + 7] <- 10
+            }
+            
+          }else{
+            
+            # Needs to be just Delta_i if current order day isn't included in Delta_i
+            sim_table$OrderDay[day + step$Delta_i] <- "Y"
+          }}
+        
+        leadrow <- day + ActualLeadtime -1
+      }else{
+        # Calculate daily inventory level 
+        invlevel <- sim_table$DailyInvLevel[day-1] - sim_table$Issues[day-1] +
+          sim_table$Returns[day-1] + sim_table$ReceivedQty[day-1]
+        
+        if(invlevel > 0){
+          sim_table$DailyInvLevel[day] <- invlevel
+        }else{
+          sim_table$DailyInvLevel[day] <- 0
+        }     
+      }
       
-      Raw_Res <- rbind(Raw_Res, Extract)
-      z <-  z + 1
-      leadrow <- 1 
+      # extract data from sim - results table is one line for each sim run
+      # Raw_res is full daily sim table for each run (to be able to produce daily inventory level graph)
+      ExtractA <-subset(sim_table, Log_Date_Time >= start_date & Log_Date_Time <= end_date)
+      Extract <- mutate(ExtractA, RunNum = z, Forecast = forecast_type$Method[1])
+      results$DailyInv[z] <- mean(Extract$DailyInvLevel) %>% ceiling()
+      results$No.Orders[z] <- nrow(Extract[Extract$OrderQtyinPacksize > 0,])
       
-    }
-    RunNo <- RunNo + 1 
-  }
+      no <- 1
+      
+      for (entry in 1:nrow(Extract)[1]){
+        if(entry == 1){
+          if(Extract$DailyInvLevel[entry] == 0){
+            Extract$Stockouts[entry] <- no
+            no <- (Extract$Stockouts[entry] + 1) 
+          }
+        }else{
+          if(Extract$DailyInvLevel[entry] == 0){
+            Extract$Stockouts[entry] <- no
+            no <- (Extract$Stockouts[entry] + 1)
+            if(Extract$DailyInvLevel[entry - 1] == 0){
+              Extract$Stockouts[entry] <- Extract$Stockouts[entry - 1]
+              no <- (Extract$Stockouts[entry - 1] + 1)
+            }}}
+      }   
+      
+      results$DrugDescription[z] <- drugdescription
+      results$NSVCode[z] <- nsvcode
+      results$No.Stockouts[z] <- max(Extract$Stockouts)
+      results$DateRange[z] <- paste(Extract$Log_Date_Time[1], "-", Extract$Log_Date_Time[nrow(Extract)])
+      results$ForecastMethod[z] <- forecast_type$Method[1]
+      # ForecastMethod$Method[lin]
+      results$No.OrdersNotonOrderDay[z]<-  Extract %>% filter(OrderDay == "Y" & WeekDay != UsualOrderDay) %>% 
+        count()
+      results$MaxInv[z] <- max(Extract$DailyInvLevel) %>% ceiling()
+      results$MinInv[z] <- min(Extract$DailyInvLevel) %>% ceiling()
+      Extract1 <- Extract %>% group_by(Stockouts) %>% count() %>% filter(Stockouts != 0)
+      results$MinStockoutLength[z] <- min(Extract1$n)
+      results$MaxStockoutLength[z] <- max(Extract1$n)   
+      
+      
+      
+      
+    }}
   
+  Raw_Res <- rbind(Raw_Res, Extract)
+  z <-  z + 1
+  leadrow <- 1 
+  
+}
+RunNo <- RunNo + 1 
+}
+
 }
 
 results1 <- select(results, -(No.OrdersNotonOrderDay))
