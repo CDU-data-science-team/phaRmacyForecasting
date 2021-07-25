@@ -266,7 +266,7 @@ for(chem in 1:nrow(TestDrugs)){
             sim_table$ReceivedQty[day + ActualLeadtime -1] <-  sim_table$ReceivedQty[day + ActualLeadtime -1] + 
               sim_table$OrderQtyinPacksize[day]
           }
-        }else{
+        } else {
           ActualLeadtime <- 0
         }
         
@@ -338,11 +338,17 @@ for(chem in 1:nrow(TestDrugs)){
       results$DateRange[z] <- paste(Extract$Log_Date_Time[1], "-", Extract$Log_Date_Time[nrow(Extract)])
       results$ForecastMethod[z] <- forecast_type$Method[1]
       # ForecastMethod$Method[lin]
-      results$No.OrdersNotonOrderDay[z]<-  Extract %>% filter(OrderDay == "Y" & WeekDay != UsualOrderDay) %>% 
+      results$No.OrdersNotonOrderDay[z]<-  Extract %>% 
+        filter(OrderDay == "Y" & WeekDay != UsualOrderDay) %>% 
         count()
-      results$MaxInv[z] <- max(Extract$DailyInvLevel) %>% ceiling()
-      results$MinInv[z] <- min(Extract$DailyInvLevel) %>% ceiling()
-      Extract1 <- Extract %>% group_by(Stockouts) %>% count() %>% filter(Stockouts != 0)
+      results$MaxInv[z] <- max(Extract$DailyInvLevel) %>% 
+        ceiling()
+      results$MinInv[z] <- min(Extract$DailyInvLevel) %>% 
+        ceiling()
+      Extract1 <- Extract %>% 
+        group_by(Stockouts) %>% 
+        count() %>% 
+        filter(Stockouts != 0)
       results$MinStockoutLength[z] <- min(Extract1$n)
       results$MaxStockoutLength[z] <- max(Extract1$n)   
       
