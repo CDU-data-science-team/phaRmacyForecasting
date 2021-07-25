@@ -1,23 +1,51 @@
 
 # data and forecasts
 
-make_tsibble <- function(data, frequency = "Daily"){
+make_tsibble <- function(data, frequency = "Daily", remove_weekends = FALSE){
   
   if(frequency == "Weekly"){
     
-    data <- data %>% 
-      dplyr::mutate(Date = lubridate::floor_date(Date, "week"),
-                    Date = tsibble::yearweek(Date))
+    return(
+      data %>% 
+        dplyr::mutate(Date = lubridate::floor_date(Date, "week"),
+                      Date = tsibble::yearweek(Date)) %>% 
+        dplyr::filter(Total_Qty >= 0) %>% 
+        dplyr::group_by(Date) %>%
+        dplyr::summarise(quantity = sum(Total_Qty, na.rm = TRUE)) %>% 
+        dplyr::ungroup() %>% 
+        head(-1) %>% # remove the last row in case it isn't a complete week
+        tsibble::tsibble(index = Date) %>% 
+        tsibble::fill_gaps(quantity = 0)
+    )
+    
+  } else {
+    
+    if(remove_weekends){
+      
+      return(
+        data %>%
+          dplyr::filter(Total_Qty >= 0,
+                        !lubridate::wday(Date, label = TRUE) %in% c("Sat", "Sun")) %>% 
+          dplyr::group_by(Date) %>%
+          dplyr::summarise(quantity = sum(Total_Qty, na.rm = TRUE)) %>% 
+          dplyr::ungroup() %>% 
+          dplyr::mutate(observation = dplyr::row_number()) %>% 
+          tsibble::tsibble(key = observation) %>% 
+          tsibble::fill_gaps(quantity = 0)
+      )
+    } else {
+      
+      return(
+        data %>%
+          dplyr::filter(Total_Qty >= 0) %>% 
+          dplyr::group_by(Date) %>%
+          dplyr::summarise(quantity = sum(Total_Qty, na.rm = TRUE)) %>% 
+          dplyr::ungroup() %>% 
+          tsibble::tsibble(index = Date) %>% 
+          tsibble::fill_gaps(quantity = 0)
+      )
+    }
   }
-  
-  data %>%
-    dplyr::filter(Total_Qty >= 0) %>% 
-    dplyr::group_by(Date) %>%
-    dplyr::summarise(quantity = sum(Total_Qty, na.rm = TRUE)) %>% 
-    dplyr::ungroup() %>% 
-    head(-1) %>% # remove the last row in case it isn't a complete week
-    tsibble::tsibble(index = Date) %>% 
-    tsibble::fill_gaps(quantity = 0)
 }
 
 forecast_series <- function(data, horizon, frequency = "Daily"){
