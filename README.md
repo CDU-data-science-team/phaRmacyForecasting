@@ -4,6 +4,12 @@ Inventory management of medicines within hospital pharmacies could be improved b
 
 [Link to a very early version of the application](https://involve.nottshc.nhs.uk:8443/pharmacy_forecasting/).
 
+There are lots of helpful functions in this package. To install:
+
+```
+remotes::install_github("CDU-data-science-team/phaRmacyForecasting")
+```
+
 <!-- This repository contains early work forecasting issues of drugs within the Trust (as well as an open dataset). As the project progresses there will be material relating to stock control as well as a Shiny interface to the forecasting and stock control methods.
 
 You can see the output files at the following links:
