@@ -23,7 +23,7 @@ testthat::test_that("drug ordering quantity works", {
   test_stock <- drug_quantity(forecast = test_forecast, # simulated forecast for now
                               distribution = lead_time_dis,
                               min_stock = 100,
-                              max_stock = 800,
+                              max_stock = 10000,
                               p_min = 0.01,
                               p_max = 0.05,
                               inv_i = 150,
