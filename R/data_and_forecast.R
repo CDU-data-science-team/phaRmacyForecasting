@@ -65,7 +65,7 @@ forecast_series <- function(data, horizon, frequency = "Daily"){
     fabletools::model("MEAN" = fable::MEAN(quantity),
                       "SNAIVE" = fable::SNAIVE(quantity ~ lag(values[1])), 
                       # "PROPHET" = fable.prophet::prophet(quantity),
-                      "ARIMA" = fable::ARIMA(quantity),
+                      "ARIMA" = fable::ARIMA(quantity, approximation = FALSE),
                       "ETS" = fable::ETS(quantity ~ season(method = values[2]))) %>%
     fabletools::forecast(h = horizon)
 }
