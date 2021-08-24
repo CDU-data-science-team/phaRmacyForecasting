@@ -2,7 +2,7 @@
 
 Inventory management of medicines within hospital pharmacies could be improved by harnessing advanced analytics to inform stock ordering requirements. This should release valuable resources which could be used for higher value clinical work. This project aims to develop, test and implement an open source analytical tool in R that will support and improve existing inventory management practices within our Trust pharmacy.
 
-[Link to a very early version of the application](https://involve.nottshc.nhs.uk:8443/pharmacy_forecasting/).
+[Link to a very early version of the application](https://involve.nottshc.nhs.uk/rsconnect/pharmacy_forecasting/).
 
 There are lots of helpful functions in this package. To install:
 
