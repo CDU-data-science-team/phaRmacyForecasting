@@ -4,12 +4,12 @@
 \alias{make_quantiles}
 \title{Make quantiles from a forecast}
 \usage{
-make_quantiles(forecast, num_q_vals = 10)
+make_quantiles(forecast, num_q_vals = 100)
 }
 \arguments{
 \item{forecast}{dataframe with two columns- mean_demand and sd_demand}
 
-\item{num_q_vals}{number of quantiles plus 1 (defaults to 10)}
+\item{num_q_vals}{number of quantiles plus 1 (defaults to 100)}
 }
 \value{
 matrix of quantiles

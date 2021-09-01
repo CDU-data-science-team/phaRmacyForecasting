@@ -10,7 +10,7 @@ forecast_series(data, horizon, frequency = "Daily")
 \item{data}{tsibble with two columns 'Date' and 'Quantity'. You can make 
 this with \code{\link{make_tsibble}}}
 
-\item{horizon}{integer. One of 'Daily' or 'Weekly'}
+\item{horizon}{integer. number of days/ weeks to forecast}
 
 \item{frequency}{String. One of 'Daily' or 'Weekly'- return daily or 
 weekly forecasts}
@@ -21,5 +21,5 @@ snaive (weekly seasonality), ARIMA (auto), and ETS (weekly seasonality for
 daily forecast, and none with weekly forecast)
 }
 \description{
-Forecast drug issues
+Make a forecast of drug issues
 }
