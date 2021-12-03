@@ -32,11 +32,13 @@ usethis::use_package( "fabletools" )
 usethis::use_package( "feasts" )
 usethis::use_package( "dplyr" )
 usethis::use_package( "distr6" )
+usethis::use_package( "odbc" )
+usethis::use_package( "pins" )
 
 ## Add modules ----
 ## Create a module infrastructure in R/
 golem::add_module( name = "forecasts" ) # Name of the module
-golem::add_module( name = "name_of_module2" ) # Name of the module
+golem::add_module( name = "reordering" ) # Name of the module
 
 ## Add helper functions ----
 ## Creates ftc_* and utils_*

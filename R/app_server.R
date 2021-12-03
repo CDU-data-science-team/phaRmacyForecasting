@@ -7,6 +7,21 @@
 app_server <- function( input, output, session ) {
   # Your application server logic
   
+  # load the data warehouse stuff
+  
+  board <- pins::board_rsconnect()
+  
+  product_sup_profile <- board %>% 
+    pins::pin_read("Chris.Beeley/product_sup_profile")
+  
+  # this is supposed to load live but doesn't ATM
+  
+  w_order_log_df1 <- board %>% 
+    pins::pin_read("Chris.Beeley/w_order_log_df1")
+  
+  trans_log <- board %>% 
+    pins::pin_read("Chris.Beeley/trans_log")
+  
   output$drugNameUI <- renderUI({
     
     drug_names <- sort(unique(pharmacy$NSVCode))
@@ -45,6 +60,8 @@ app_server <- function( input, output, session ) {
                     Site1 == input$site)
     
   })
+  
+  mod_reordering_server("reordering_ui_1")
   
   mod_forecasts_server("forecasts_ui_1", filter_data = filter_data)
 }
