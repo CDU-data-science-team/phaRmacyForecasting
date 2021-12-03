@@ -7,7 +7,23 @@
 app_server <- function( input, output, session ) {
   # Your application server logic
   
-  # load the data warehouse stuff
+  # shiny inputs----
+  
+  # Inputs from shiny app
+  site <- 240
+  supplier <- "STO"
+  
+  # Settings which aren't yet provided within the code
+  risk_of_min_stock <-  0.01
+  risk_of_exceeding_max_stock <- 0.05
+  time_til_next_order <- 10
+  max_storage_capacity <-  30000
+  
+  # add in other waste / expiry / adjustment codes
+  waste_adjust_codes <- c("ADJ","COMSP","EXP", "HADJ","HEXP", "HWAST", "MOCK", 
+                          "RWAST", "TEST", "TRG", "WAST", "WASTE", "XXXX")
+  
+  # load the data warehouse stuff----
   
   board <- pins::board_rsconnect()
   
@@ -21,6 +37,8 @@ app_server <- function( input, output, session ) {
   
   trans_log <- board %>% 
     pins::pin_read("Chris.Beeley/trans_log")
+  
+  # reactive UI----
   
   output$drugNameUI <- renderUI({
     
@@ -51,6 +69,8 @@ app_server <- function( input, output, session ) {
     selectInput("site", "Site:", choices = sites,
                 selected = tail(sites, 1))
   })
+  
+  # data and modules----
   
   filter_data <- reactive({
     
