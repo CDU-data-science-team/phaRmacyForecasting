@@ -1,7 +1,7 @@
 Package: phaRmacyForecasting
 Title: Putting the R in pharmacy- a Shiny application to make forecasts 
   of medication use in pharmacies in Nottinghamshire Healthcare NHS Trust
-Version: 0.1.0
+Version: 0.2.1
 Authors@R: person('Chris', 'Beeley', email = 'chris.beeley@gmail.com', role = c('cre', 'aut'))
 Description: This is a Shiny application which allows users to make predictions 
   on the volumes of drugs issued from Nottinghamshire Healthcare pharmacies. A variety 
