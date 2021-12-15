@@ -6,3 +6,4 @@
 .Rdata
 .httr-oauth
 .DS_Store
+secret/

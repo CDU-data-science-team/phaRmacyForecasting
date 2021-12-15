@@ -4,7 +4,7 @@
 \alias{n_weekdays}
 \title{return number of weekdays}
 \usage{
-n_weekdays(from, to, holidays)
+n_weekdays(from, to)
 }
 \arguments{
 \item{from}{Date. Date to count from (inclusive)}

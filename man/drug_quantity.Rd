@@ -31,6 +31,8 @@ drug_quantity(
 \item{inv_i}{int the inventory at the time of this (the i'th) order}
 
 \item{delta_pref}{int the preferred order interval for drug in question}
+
+\item{outstanding_orders}{int the number of units in outstanding orders}
 }
 \value{
 number giving amount to order

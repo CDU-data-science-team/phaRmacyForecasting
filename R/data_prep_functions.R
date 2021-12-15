@@ -37,7 +37,9 @@ get_holidays <- function(){
 #' @return integer. Number of weekdays between two dates
 #' @export
 
-n_weekdays <- function(from, to, holidays) { 
+n_weekdays <- function(from, to) { 
+  
+  holidays <- get_holidays()
   
   possible_days <- seq(from, to, "days")
   # Count all days that are not weekend and are not holidays
