@@ -7,6 +7,39 @@
 app_server <- function( input, output, session ) {
   # Your application server logic
   
+  # shiny inputs----
+  
+  # Inputs from shiny app
+  site <- 240
+  supplier <- "STO"
+  
+  # Settings which aren't yet provided within the code
+  risk_of_min_stock <-  0.01
+  risk_of_exceeding_max_stock <- 0.05
+  time_til_next_order <- 10
+  max_storage_capacity <-  30000
+  
+  # add in other waste / expiry / adjustment codes
+  waste_adjust_codes <- c("ADJ","COMSP","EXP", "HADJ","HEXP", "HWAST", "MOCK", 
+                          "RWAST", "TEST", "TRG", "WAST", "WASTE", "XXXX")
+  
+  # load the data warehouse stuff----
+  
+  board <- pins::board_rsconnect()
+  
+  product_sup_profile <- board %>% 
+    pins::pin_read("Chris.Beeley/product_sup_profile")
+  
+  # this is supposed to load live but doesn't ATM
+  
+  w_order_log_df1 <- board %>% 
+    pins::pin_read("Chris.Beeley/w_order_log_df1")
+  
+  trans_log <- board %>% 
+    pins::pin_read("Chris.Beeley/trans_log")
+  
+  # reactive UI----
+  
   output$drugNameUI <- renderUI({
     
     drug_names <- sort(unique(pharmacy$NSVCode))
@@ -37,6 +70,8 @@ app_server <- function( input, output, session ) {
                 selected = tail(sites, 1))
   })
   
+  # data and modules----
+  
   filter_data <- reactive({
     
     pharmacy %>% 
@@ -45,6 +80,8 @@ app_server <- function( input, output, session ) {
                     Site1 == input$site)
     
   })
+  
+  mod_reordering_server("reordering_ui_1")
   
   mod_forecasts_server("forecasts_ui_1", filter_data = filter_data)
 }

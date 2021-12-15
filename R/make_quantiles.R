@@ -3,6 +3,7 @@
 #' @param forecast dataframe with two columns- mean_demand and sd_demand
 #' @param num_q_vals number of quantiles plus 1 (defaults to 100)
 #' @return matrix of quantiles
+#' @export
 make_quantiles <- function(forecast, num_q_vals = 100){
   
   quantiles <- purrr::map_dfc(seq(1/num_q_vals, 1-(1/num_q_vals), 1/num_q_vals), 

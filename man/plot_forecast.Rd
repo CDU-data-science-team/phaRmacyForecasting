@@ -7,10 +7,10 @@
 plot_forecast(forecast_value, data, horizon, model)
 }
 \arguments{
-\item{data}{A tsibble, the same one the forecast is based on}
-
-\item{forecast_value.}{A forecast. You can make this with 
+\item{forecast_value}{A forecast. You can make this with 
 \code{\link{forecast_series}}}
+
+\item{data}{A tsibble, the same one the forecast is based on}
 }
 \value{
 A faceted ggplot

@@ -1,5 +1,9 @@
-
-# data and forecasts
+#'Make a tsibble suitable for forecsating
+#' @param data Dataframe with two columns 'Date', and 'Total_Qty'
+#' @param frequency String. One of 'Daily' or 'Weekly'
+#' @param remove_weekends Boolean. Set to TRUE to remove weekends
+#' @return tsibble with two columns 'Date' and 'quantity'
+#' @export
 
 make_tsibble <- function(data, frequency = "Daily", remove_weekends = FALSE){
   
@@ -48,6 +52,17 @@ make_tsibble <- function(data, frequency = "Daily", remove_weekends = FALSE){
   }
 }
 
+#' Make a forecast of drug issues
+#' @param data tsibble with two columns 'Date' and 'Quantity'. You can make 
+#' this with \code{\link{make_tsibble}}
+#' @param horizon integer. number of days/ weeks to forecast
+#' @param frequency String. One of 'Daily' or 'Weekly'- return daily or 
+#' weekly forecasts
+#' @return mable with different forecast functions applied - mean, 
+#' snaive (weekly seasonality), ARIMA (auto), and ETS (weekly seasonality for 
+#' daily forecast, and none with weekly forecast)
+#' @export
+
 forecast_series <- function(data, horizon, frequency = "Daily"){
   
   drug_train <- data
@@ -70,6 +85,15 @@ forecast_series <- function(data, horizon, frequency = "Daily"){
     fabletools::forecast(h = horizon)
 }
 
+#' Plot the forecast
+#' @description Produce a faceted plot showing the performance of different 
+#' forecasting models compared with the actual issues over that time span
+#' @param data A tsibble, the same one the forecast is based on
+#' @param forecast_value A forecast. You can make this with 
+#' \code{\link{forecast_series}}
+#' @return A faceted ggplot
+#' @export
+
 plot_forecast <- function(forecast_value, data, horizon, model){
   
   tibble::as_tibble(forecast_value) %>% 
@@ -82,6 +106,16 @@ plot_forecast <- function(forecast_value, data, horizon, model){
                                  group = .model, colour = .model)) + 
     ggplot2::geom_line() + ggplot2::facet_wrap( ~ .model)
 }
+
+#' Show the accuracy of a set of forecasts
+#' @param data tsibble with two columns 'Date' and 'Quantity'. You can make 
+#' this with \code{\link{make_tsibble}}
+#' @param forecast_value. A forecast. You can make this with 
+#' \code{\link{forecast_series}}
+#' @return dataframe with two columns showing model and MAE
+#' @description Take a mable of forecasts and the actual drug issues and compute
+#' mean absolute error
+#' @export
 
 show_accuracy <- function(forecast_value, data, horizon){
   

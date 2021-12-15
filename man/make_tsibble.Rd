@@ -17,5 +17,5 @@ make_tsibble(data, frequency = "Daily", remove_weekends = FALSE)
 tsibble with two columns 'Date' and 'quantity'
 }
 \description{
-Make tsibble
+Make a tsibble suitable for forecsating
 }
