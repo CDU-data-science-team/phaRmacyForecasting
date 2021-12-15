@@ -20,11 +20,14 @@ holidays <- jsonlite::fromJSON(
   "https://www.gov.uk/bank-holidays.json")$`england-and-wales`$events$date
 
 # Set function for counting days excluding weekends and holidays
-Nweekdays <- function(a, b, holidays, weekend) { 
-  possible_days <- seq(a, b, "days")
-  # Count all days that are not weekend and are not holidays
-  sum(!weekdays(possible_days) %in% weekend & !possible_days %in% holidays)
-}
+
+# I've deleted this because this function is now defined in the package
+
+# Nweekdays <- function(a, b, holidays, weekend) { 
+#   possible_days <- seq(a, b, "days")
+#   # Count all days that are not weekend and are not holidays
+#   sum(!weekdays(possible_days) %in% weekend & !possible_days %in% holidays)
+# }
 
 # Set up tables
 

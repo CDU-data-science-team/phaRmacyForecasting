@@ -9,10 +9,6 @@ app_server <- function( input, output, session ) {
   
   # shiny inputs----
   
-  # Inputs from shiny app
-  site <- 240
-  supplier <- "STO"
-  
   # Settings which aren't yet provided within the code
   risk_of_min_stock <-  0.01
   risk_of_exceeding_max_stock <- 0.05
@@ -63,7 +59,7 @@ app_server <- function( input, output, session ) {
   })
   
   output$siteUI <- renderUI({
-    
+
     sites <- sort(unique(pharmacy$Site1))
     
     selectInput("site", "Site:", choices = sites,
