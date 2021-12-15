@@ -25,7 +25,7 @@ test_that("Forecast produced", {
   daily_forecast <- forecast_series(
     daily_data %>% head(-42), 42, frequency = "Daily")
   
-  weekly_forecast <- phaRmacyForecasting:::forecast_series(
+  weekly_forecast <- forecast_series(
     daily_data %>% head(-6), 6, frequency = "Weekly")
   
   plot_forecast(forecast_value = daily_forecast, 

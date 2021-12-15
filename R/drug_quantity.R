@@ -8,6 +8,7 @@
 #' @param p_max number probability of ordering too much
 #' @param inv_i int the inventory at the time of this (the i'th) order
 #' @param delta_pref int the preferred order interval for drug in question
+#' @param outstanding_orders int the number of units in outstanding orders
 #' @return number giving amount to order
 #' @export
 drug_quantity <- function(forecast, distribution, min_stock, max_stock,
