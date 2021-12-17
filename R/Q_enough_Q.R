@@ -1,4 +1,4 @@
-Q_enough_Q <- function(lead_time_dis, inv_i, current_q_i, Outstanding_orders, 
+Q_enough_Q <- function(lead_time_dis, inv_i, current_q_i, outstanding_orders, 
                        Forecast_quantiles, Delta_i, min_stock, p_min){
   
   # This function assesses whether Q_i will be sufficient and, if not, suggests next Q_i to try  
@@ -11,9 +11,10 @@ Q_enough_Q <- function(lead_time_dis, inv_i, current_q_i, Outstanding_orders,
   num_q_vals <- ncol(Forecast_quantiles)
   q_vals <- c(seq(0,1, 1 / (num_q_vals - 1))) # set up vector of quantile levels - evenly spaced for now
   Q_i <- current_q_i
-  Q_out <- sum(Outstanding_orders$Ord_quant) # quantity associated with outstanding orders
+  Q_out <- sum(outstanding_orders) # quantity associated with outstanding orders
   
-  # now set probabilities for next delivery arriving at time y. NOTE NEED TO CHECK DISCRETISATION AGAINST FORECAST
+  # now set probabilities for next delivery arriving at time y
+  # NOTE NEED TO CHECK DISCRETISATION AGAINST FORECAST
   # and Q_i being insufficient if that is the case
   
   for (y in seq(1, nrow(Forecast_quantiles), 1)){

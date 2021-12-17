@@ -19,7 +19,8 @@ testthat::test_that("drug ordering quantity works", {
   
   test_forecast <- forecast_series(daily_data, 42, frequency = "Daily")
   
-  test_stock <- drug_quantity(forecast = test_forecast, # simulated forecast for now
+  test_stock <- drug_quantity(forecast = test_forecast,
+                              outstanding_orders = 100,
                               distribution = lead_time_dis,
                               min_stock = 100,
                               max_stock = 10000,

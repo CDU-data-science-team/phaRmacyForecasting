@@ -120,9 +120,6 @@ inventory_reorder <- function(site, supplier){
     actual_forecast <- daily_forecast %>% 
       dplyr::filter(.model == "ARIMA")
     
-    # Use this for now until outstanding order quantity added as input to 'step'
-    
-    Outstanding_orders$Ord_quant[1] <- outstanding_order_qty$total_out_ord_qty[1] 
     # work out where outstanding requisitions fit into the process - 
     # the value is found at outstanding_requis$total_out_requis[1]
     
@@ -134,7 +131,8 @@ inventory_reorder <- function(site, supplier){
       p_min = risk_of_min_stock,
       p_max = risk_of_exceeding_max_stock,
       inv_i = product_info$stocklvl[1],
-      delta_pref = time_til_next_order)
+      delta_pref = time_til_next_order,
+      outstanding_orders = outstanding_order_qty$total_out_ord_qty[1])
     
     # Populate order quantity & time 'til next order in output table
     Output_table$Order_Quantity[drug] <- ceiling(step$Q_i/product_info$Packsize[1])
