@@ -1,5 +1,5 @@
 Q_enough_Delta <- function(forecast_q, choose_distribution, d_i, inv_i, current_q_i,
-                           min_stock, p_min){
+                           min_stock, p_min, outstanding_orders){
   
   # determines whether Q_i is sufficient and, if not, suggests next Delta_i to try 
   # function used when Q_i has been reduced to meet storage condition
@@ -13,7 +13,7 @@ Q_enough_Delta <- function(forecast_q, choose_distribution, d_i, inv_i, current_
   num_q_vals <- ncol(forecast_q)
   q_vals <- c(seq(0,1, 1 / (num_q_vals - 1))) # set up vector of quantile levels - evenly spaced for now
   Delta_i <- d_i
-  Q_out <- sum(Outstanding_orders$Ord_quant)
+  Q_out <- sum(outstanding_orders)
   
   # now set probabilities for next delivery arriving at time y CHECK DISCRETISATION AGAINST FORECAST
   # and Q_i being insufficient if that is the case

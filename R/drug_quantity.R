@@ -12,15 +12,16 @@
 #' @return number giving amount to order
 #' @export
 drug_quantity <- function(forecast, distribution, min_stock, max_stock,
-                          p_min, p_max, inv_i, delta_pref) {
-
+                          p_min, p_max, inv_i, delta_pref,
+                          outstanding_orders) {
+  
   MaxLoops = 100  # maximum number of loops permitted in each while loop below
   Q_i = 0 # initialise order quantity
   Delta_i = delta_pref # initialise time to next order
   flag_suf = 0 # initialise a flag indicating (=1) that Q_i is sufficent 
   flag_stor = 0 # initialise a flag indicating (=1) that Q_i is not too much 
   Forecast_quantiles <- phaRmacyForecasting:::make_quantiles(forecast)
-
+  
   tmp1 <- c(0,0) # dummy storage for Q_i and flag_suf 
   dummy_counter <- 0
   
@@ -31,7 +32,7 @@ drug_quantity <- function(forecast, distribution, min_stock, max_stock,
     # returns whether Q_i sufficient and next Q_i to try
     
     tmp1 <- phaRmacyForecasting:::Q_enough_Q(
-      distribution, inv_i, Q_i, Outstanding_orders, Forecast_quantiles, 
+      distribution, inv_i, Q_i, outstanding_orders, Forecast_quantiles, 
       Delta_i, min_stock, p_min)
     
     Q_i = tmp1[1]
@@ -46,7 +47,7 @@ drug_quantity <- function(forecast, distribution, min_stock, max_stock,
   
   # returns whether Q_i satisfies storage condition and next Q_i to try
   tmp2 <- phaRmacyForecasting:::Q_toomuch_Q(forecast_q = Forecast_quantiles, 
-                                            o_orders = Outstanding_orders,
+                                            o_orders = outstanding_orders,
                                             choose_distribution = distribution,
                                             current_q_i = Q_i,
                                             max_stock = max_stock,
@@ -67,36 +68,37 @@ drug_quantity <- function(forecast, distribution, min_stock, max_stock,
     
     while(flag_stor<1 & dummy_counter_2 < MaxLoops){
       dummy_counter_2 <- dummy_counter_2 + 1
-
+      
       # returns whether Q_i satisfies storage condition and next Q_i to try
       
-      tmp2 <- phaRmacyForecasting:::Q_toomuch_Q(forecast_q = Forecast_quantiles, 
-                                                o_orders = Outstanding_orders,
-                                                choose_distribution = distribution,
-                                                current_q_i = Q_i,
-                                                max_stock = max_stock,
-                                                p_max = p_max,
-                                                inv_i = inv_i) 
+      tmp2 <- Q_toomuch_Q(forecast_q = Forecast_quantiles, 
+                          o_orders = outstanding_orders,
+                          choose_distribution = distribution,
+                          current_q_i = Q_i,
+                          max_stock = max_stock,
+                          p_max = p_max,
+                          inv_i = inv_i) 
       
       Q_i <- tmp2[1]
       flag_stor <- tmp2[2]
       
     }
     
-    tmp3 <- c(0,0)   # temporary storage of Delta_i  and flag_suf
+    tmp3 <- c(0,0)   # temporary storage of Delta_i and flag_suf
     dummy_counter_3 <- 0
     
     # now reduce Delta_i until reduced Q_i sufficient     
     
     while(flag_suf < 1 & dummy_counter_3 < MaxLoops){
       dummy_counter_3 <- dummy_counter_3 + 1
-      tmp3 <- phaRmacyForecasting:::Q_enough_Delta(Forecast_quantiles,
-                                                   choose_distribution = distribution,
-                                                   d_i = Delta_i,
-                                                   inv_i = inv_i,
-                                                   current_q_i = Q_i,
-                                                   min_stock, 
-                                                   p_min)
+      tmp3 <- Q_enough_Delta(Forecast_quantiles,
+                             choose_distribution = distribution,
+                             d_i = Delta_i,
+                             inv_i = inv_i,
+                             current_q_i = Q_i,
+                             min_stock, 
+                             p_min, 
+                             outstanding_orders = outstanding_orders)
       
       Delta_i <- tmp3[1]
       flag_suf <- tmp3[2]

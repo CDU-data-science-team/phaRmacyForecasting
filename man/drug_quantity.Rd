@@ -12,7 +12,8 @@ drug_quantity(
   p_min,
   p_max,
   inv_i,
-  delta_pref
+  delta_pref,
+  outstanding_orders
 )
 }
 \arguments{

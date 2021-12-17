@@ -11,7 +11,7 @@ Q_toomuch_Q <- function(forecast_q, o_orders, choose_distribution, current_q_i,
   num_q_vals <- ncol(forecast_q)
   Forecast_length <- nrow(forecast_q)
   q_vals <- c(seq(0,1, 1 / (num_q_vals - 1)))
-  Q_out <- sum(o_orders$Ord_quant)
+  Q_out <- sum(o_orders)
   Q_i <- current_q_i
   
   for (x in seq(1, Forecast_length, 1)){
