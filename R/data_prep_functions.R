@@ -31,15 +31,13 @@ get_holidays <- function(){
 #' weekends (obviously) and holidays (user defined)
 #' @param from Date. Date to count from (inclusive)
 #' @param to Date. Date to count to (inclusive)
-#' @param holidays. vector of dates as string YYYY-MM-DD. You can make this 
-#' (for England) with \code{\link{get_holidays}}
+#' @param holidays you can get this (for England) with 
+#' \code{\link{get_holidays}}
 #' 
 #' @return integer. Number of weekdays between two dates
 #' @export
 
-n_weekdays <- function(from, to) { 
-  
-  holidays <- get_holidays()
+n_weekdays <- function(from, to, holidays) { 
   
   possible_days <- seq(from, to, "days")
   # Count all days that are not weekend and are not holidays

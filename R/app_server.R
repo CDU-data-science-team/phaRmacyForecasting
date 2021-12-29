@@ -7,6 +7,10 @@
 app_server <- function( input, output, session ) {
   # Your application server logic
   
+  # load holidays
+  
+  holidays <- get_holidays()
+  
   # shiny inputs----
   
   # Settings which aren't yet provided within the code
@@ -26,13 +30,12 @@ app_server <- function( input, output, session ) {
   product_sup_profile <- board %>% 
     pins::pin_read("Chris.Beeley/product_sup_profile")
   
-  # this is supposed to load live but doesn't ATM
+  w_requis_df1 <- board %>% 
+    pins::pin_read("Chris.Beeley/w_requis_df1")
   
-  w_order_log_df1 <- board %>% 
-    pins::pin_read("Chris.Beeley/w_order_log_df1")
+  # live load
   
-  trans_log <- board %>% 
-    pins::pin_read("Chris.Beeley/trans_log")
+  source("secret/source_shiny_live.R")
   
   # reactive UI----
   
