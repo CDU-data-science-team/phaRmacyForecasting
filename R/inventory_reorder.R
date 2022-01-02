@@ -11,7 +11,8 @@
 #' @return
 #' @export
 #'
-inventory_reorder <- function(site, supplier, product, w_order, requis){
+inventory_reorder <- function(site, supplier, product, w_order, requis,
+                              updateProgress = NULL){
   
   # load holidays
   
@@ -38,7 +39,7 @@ inventory_reorder <- function(site, supplier, product, w_order, requis){
     subset(DateOrdered > Sys.Date() - 730) %>% 
     dplyr::filter(Site == site)
   
-  purrr::pmap_dfr(order_list[1 : 5, ], function(Drug_code, ProductID, ...){
+  purrr::pmap_dfr(order_list[1 : 20, ], function(Drug_code, ProductID, ...){
     
     # Filter product for relevant product
     
@@ -186,6 +187,9 @@ inventory_reorder <- function(site, supplier, product, w_order, requis){
     to_return <- data.frame(drug = Drug_code, 
                             order = ceiling(step$Q_i/product_info$Packsize[1]), 
                             days_to_order = step$Delta_i)
+    
+    updateProgress(detail = paste0("Drug: ", to_return$drug, ", order:",
+                          to_return$order))
     
     # Populate order quantity & time 'til next order in output table
     return(to_return)

@@ -5,7 +5,14 @@
 \title{Forecast and run inventory management algorithm, returning reorder quantities
 by site and drug}
 \usage{
-inventory_reorder(site, supplier, product, w_order, requis)
+inventory_reorder(
+  site,
+  supplier,
+  product,
+  w_order,
+  requis,
+  updateProgress = NULL
+)
 }
 \arguments{
 \item{site}{String. Site code (selected from dynamic UI listing all sites)}
