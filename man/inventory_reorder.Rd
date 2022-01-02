@@ -5,12 +5,18 @@
 \title{Forecast and run inventory management algorithm, returning reorder quantities
 by site and drug}
 \usage{
-inventory_reorder(site, supplier)
+inventory_reorder(site, supplier, product, w_order, requis)
 }
 \arguments{
 \item{site}{String. Site code (selected from dynamic UI listing all sites)}
 
 \item{supplier}{String. Supplier (changes weekly, selected in Shiny interface)}
+
+\item{product}{dataframe. Contents of product_sup_profile, loaded in 
+app_server.R}
+
+\item{w_order}{dataframe. Contents of w_order_log_df1, loaded in 
+app_server.R}
 }
 \value{
 

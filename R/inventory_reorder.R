@@ -3,37 +3,54 @@
 #'
 #' @param site String. Site code (selected from dynamic UI listing all sites)
 #' @param supplier String. Supplier (changes weekly, selected in Shiny interface)
+#' @param product dataframe. Contents of product_sup_profile, loaded in 
+#' app_server.R
+#' @param w_order dataframe. Contents of w_order_log_df1, loaded in 
+#' app_server.R
 #'
 #' @return
 #' @export
 #'
-inventory_reorder <- function(site, supplier){
+inventory_reorder <- function(site, supplier, product, w_order, requis){
+  
+  # load holidays
+  
+  holidays <- get_holidays()
+  
+  # Settings which aren't yet provided within the code
+  risk_of_min_stock <-  0.01
+  risk_of_exceeding_max_stock <- 0.05
+  time_til_next_order <- 10
+  max_storage_capacity <-  30000
+  
+  # add in other waste / expiry / adjustment codes
+  waste_adjust_codes <- c("ADJ","COMSP","EXP", "HADJ","HEXP", "HWAST", "MOCK", 
+                          "RWAST", "TEST", "TRG", "WAST", "WASTE", "XXXX")
   
   # takes two reactive inputs- site and supplier
   
-  order_list <- product_sup_profile %>% 
+  order_list <- product %>% 
     dplyr::filter(Site == site, Supplier_name == supplier) %>% 
     dplyr::arrange(Drug_name)
   
   # select orders placed within the last 2 years
-  order_log <- w_order_log_df1 %>% 
+  order_log <- w_order %>% 
     subset(DateOrdered > Sys.Date() - 730) %>% 
     dplyr::filter(Site == site)
   
-  purrr::pmap_dfr(order_list, function(Drug_code, ProductID, ...){
+  purrr::pmap_dfr(order_list[1, ], function(Drug_code, ProductID, ...){
     
-    # for (drug in 1:nrow()){
+    # Filter product for relevant product
     
-    # Filter product_sup_profile for relevant product
-    
-    product_info <- product_sup_profile %>% 
+    product_info <- product %>% 
       dplyr::filter(.data$Drug_code == .env$Drug_code, Site == site)
     
     # calculate leadtimes
     
     # Get rid of multiple lines for same order & received date
     ord_log <- order_log %>% 
-      dplyr::filter(Kind %in% c("O", "I") & .data$Drug_code == .env$Drug_code) %>% 
+      dplyr::filter(Kind %in% c("O", "I") & 
+                      .data$Drug_code == .env$Drug_code) %>% 
       dplyr::select(OrderNum, Drug_code, DateOrdered, QtyOrd)
     
     if(nrow(ord_log) == 0){
@@ -46,12 +63,21 @@ inventory_reorder <- function(site, supplier){
     }
     
     rec_log <- order_log %>% 
-      dplyr::filter(Site == site & Kind == "R" & .data$Drug_code == .env$Drug_code) %>% 
+      dplyr::filter(Site == site & Kind == "R" & 
+                      .data$Drug_code == .env$Drug_code) %>% 
       dplyr::group_by(OrderNum, Drug_code, Supplier_name, 
                       DateOrdered, DateReceived, Site, Kind) %>%  
       dplyr::summarise(QtyRec = sum(QtyRec)) %>% 
       dplyr::ungroup()
     
+    if(nrow(rec_log) == 0){
+      
+      return(
+        data.frame(drug = Drug_code, 
+                   order = 0, 
+                   days_to_order = time_til_next_order)
+      )
+    }
     
     ord_rec_log <- dplyr::left_join(rec_log, ord_log, 
                                     by = c("OrderNum" = "OrderNum", 
@@ -59,7 +85,6 @@ inventory_reorder <- function(site, supplier){
                                            "DateOrdered" = "DateOrdered"))
     ord_rec_log <- ord_rec_log %>% 
       dplyr::mutate(Outstanding_order = QtyOrd - QtyRec)
-    
     
     leadtime <- ord_rec_log %>% 
       dplyr::rowwise() %>%
@@ -88,7 +113,7 @@ inventory_reorder <- function(site, supplier){
     
     # find outstanding requisitions which need fulfilling
     
-    outstanding_requis <- w_requis_df1 %>% 
+    outstanding_requis <- requis %>% 
       dplyr::filter(Site == site, .data$Drug_code == .env$Drug_code)
     
     outstanding_requis <- outstanding_requis %>%
@@ -161,8 +186,6 @@ inventory_reorder <- function(site, supplier){
     to_return <- data.frame(drug = Drug_code, 
                             order = ceiling(step$Q_i/product_info$Packsize[1]), 
                             days_to_order = step$Delta_i)
-    
-    cat(str(to_return))
     
     # Populate order quantity & time 'til next order in output table
     return(to_return)

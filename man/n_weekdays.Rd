@@ -4,15 +4,15 @@
 \alias{n_weekdays}
 \title{return number of weekdays}
 \usage{
-n_weekdays(from, to)
+n_weekdays(from, to, holidays)
 }
 \arguments{
 \item{from}{Date. Date to count from (inclusive)}
 
 \item{to}{Date. Date to count to (inclusive)}
 
-\item{holidays.}{vector of dates as string YYYY-MM-DD. You can make this 
-(for England) with \code{\link{get_holidays}}}
+\item{holidays}{you can get this (for England) with 
+\code{\link{get_holidays}}}
 }
 \value{
 integer. Number of weekdays between two dates
