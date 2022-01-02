@@ -20,7 +20,7 @@ app_ui <- function(request) {
                    icon = icon("sort-amount-down")),
           menuItem("Diagnostics", tabName = "diagnostics", 
                    icon = icon("question-circle")),
-          uiOutput("drugNameUI"),
+          uiOutput("supplierUI"),
           uiOutput("siteUI"),
           uiOutput("dateRangeUI")
         )
