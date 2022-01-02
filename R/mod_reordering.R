@@ -25,8 +25,17 @@ mod_reordering_server <- function(id, react_inputs, product, w_order, requis){
     
     output$reorder_table <- DT::renderDT({
       
-      inventory_reorder(site = 240, supplier = "STO", product, w_order, requis)
-    })
+      req(react_inputs()$site)
+      
+      withProgress(message = 'Loading...', value = 0, {
+        
+        inventory_reorder(site = react_inputs()$site, 
+                          supplier = react_inputs()$select_supplier, 
+                          product, 
+                          w_order, 
+                          requis)
+      })
+    }, rownames = FALSE)
   })
 }
 

@@ -38,7 +38,7 @@ inventory_reorder <- function(site, supplier, product, w_order, requis){
     subset(DateOrdered > Sys.Date() - 730) %>% 
     dplyr::filter(Site == site)
   
-  purrr::pmap_dfr(order_list[1, ], function(Drug_code, ProductID, ...){
+  purrr::pmap_dfr(order_list[1 : 5, ], function(Drug_code, ProductID, ...){
     
     # Filter product for relevant product
     

@@ -56,7 +56,7 @@ app_server <- function( input, output, session ) {
   })
   
   mod_reordering_server("reordering_ui_1", 
-                        react_inputs = reordering_input,
+                        react_inputs = reordering_inputs,
                         product = product_sup_profile,
                         w_order = w_order_log_df1,
                         requis = w_requis_df1)
