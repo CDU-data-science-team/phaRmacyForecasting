@@ -115,7 +115,7 @@ inventory_reorder <- function(site, supplier, product, w_order, requis,
     # find outstanding requisitions which need fulfilling
     
     outstanding_requis <- requis %>% 
-      dplyr::filter(Site == site, .data$Drug_code == .env$Drug_code)
+      dplyr::filter(SiteID == site, .data$Drug_code == .env$Drug_code)
     
     outstanding_requis <- outstanding_requis %>%
       # do we need to have a cut off i.e. DateOrdered > Sys.Date() - 14?
