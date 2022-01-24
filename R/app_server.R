@@ -29,7 +29,7 @@ app_server <- function( input, output, session ) {
     
     selectInput("supplier", "Select supplier",
                 choices = suppliers, 
-                selected = "STO")
+                selected = "AAH")
     
   })
   
@@ -38,7 +38,7 @@ app_server <- function( input, output, session ) {
     sites <- sort(unique(product_sup_profile$Site))
     
     selectInput("site", "Site:", choices = sites,
-                selected = 240)
+                selected = 100)
   })
   
   # data and modules----

@@ -23,6 +23,10 @@ mod_reordering_server <- function(id, react_inputs, product, w_order, requis){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
+    # define possibly function
+    
+    poss_inventory = purrr::possibly(.f = inventory_reorder, otherwise = NULL)
+    
     output$reorder_table <- DT::renderDT({
       
       # Create a Progress object
@@ -47,7 +51,12 @@ mod_reordering_server <- function(id, react_inputs, product, w_order, requis){
                         product, 
                         w_order, 
                         requis,
+                        holidays = get_holidays(),
                         updateProgress)
+      
+      # table_return %>%
+      # purrr::keep(~is.null(.x) )
+      
     }, rownames = FALSE)
   })
 }

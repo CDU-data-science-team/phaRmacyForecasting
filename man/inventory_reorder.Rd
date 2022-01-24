@@ -11,6 +11,7 @@ inventory_reorder(
   product,
   w_order,
   requis,
+  holidays,
   updateProgress = NULL
 )
 }
