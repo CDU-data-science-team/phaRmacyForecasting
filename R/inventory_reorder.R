@@ -11,12 +11,8 @@
 #' @return
 #' @export
 #'
-inventory_reorder <- function(site, supplier, product, w_order, requis,
+inventory_reorder <- function(site, supplier, product, w_order, requis, holidays,
                               updateProgress = NULL){
-  
-  # load holidays
-  
-  holidays <- get_holidays()
   
   # Settings which aren't yet provided within the code
   risk_of_min_stock <-  0.01
@@ -40,6 +36,10 @@ inventory_reorder <- function(site, supplier, product, w_order, requis,
     dplyr::filter(Site == site)
   
   purrr::pmap_dfr(order_list, function(Drug_code, ProductID, ...){
+    
+    # attach(order_list |> dplyr::filter(Drug_code =="DVT562Q"))
+    
+    cat(Drug_code)
     
     # Filter product for relevant product
     
@@ -93,6 +93,15 @@ inventory_reorder <- function(site, supplier, product, w_order, requis,
                       n_weekdays(DateOrdered, DateReceived, holidays)) %>% 
       subset(leadtime <= 10)
     
+    if(nrow(leadtime) == 0){
+      
+      return(
+        data.frame(drug = Drug_code, 
+                   order = 0, 
+                   days_to_order = time_til_next_order)
+      )
+    }
+    
     leadmin <- min(leadtime$leadtime)
     leadmax <- max(leadtime$leadtime)
     leadmode <- calc_mode(leadtime$leadtime)
@@ -115,7 +124,7 @@ inventory_reorder <- function(site, supplier, product, w_order, requis,
     # find outstanding requisitions which need fulfilling
     
     outstanding_requis <- requis %>% 
-      dplyr::filter(Site == site, .data$Drug_code == .env$Drug_code)
+      dplyr::filter(SiteID == site, .data$Drug_code == .env$Drug_code)
     
     outstanding_requis <- outstanding_requis %>%
       # do we need to have a cut off i.e. DateOrdered > Sys.Date() - 14?
@@ -188,9 +197,9 @@ inventory_reorder <- function(site, supplier, product, w_order, requis,
                             order = ceiling(step$Q_i/product_info$Packsize[1]), 
                             days_to_order = step$Delta_i)
     
-    updateProgress(detail = paste0("Drug: ", to_return$drug, ", order:",
-                          to_return$order))
-    
+    # updateProgress(detail = paste0("Drug: ", to_return$drug, ", order:",
+    #                       to_return$order))
+
     # Populate order quantity & time 'til next order in output table
     return(to_return)
     

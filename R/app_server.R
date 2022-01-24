@@ -9,13 +9,13 @@ app_server <- function( input, output, session ) {
   
   # load the data warehouse stuff----
   
-  board <- pins::board_rsconnect()
-  
-  product_sup_profile <- board %>% 
-    pins::pin_read("Chris.Beeley/product_sup_profile")
-  
-  w_requis_df1 <- board %>% 
-    pins::pin_read("Chris.Beeley/w_requis_df1")
+  # board <- pins::board_rsconnect()
+  # 
+  # product_sup_profile <- board %>% 
+  #   pins::pin_read("Chris.Beeley/product_sup_profile")
+  # 
+  # w_requis_df1 <- board %>% 
+  #   pins::pin_read("Chris.Beeley/w_requis_df1")
   
   # live load
   
@@ -29,7 +29,7 @@ app_server <- function( input, output, session ) {
     
     selectInput("supplier", "Select supplier",
                 choices = suppliers, 
-                selected = "STO")
+                selected = "AAH")
     
   })
   
@@ -38,14 +38,14 @@ app_server <- function( input, output, session ) {
     sites <- sort(unique(product_sup_profile$Site))
     
     selectInput("site", "Site:", choices = sites,
-                selected = 240)
+                selected = 100)
   })
   
   # data and modules----
   
   filter_data <- reactive({
     
-    pharmacy %>% 
+    product_sup_profile %>% 
       dplyr::filter(Drug_code == input$selectDrug,
                     Date >= input$dateRange[1], Date <= input$dateRange[2],
                     Site == input$site)
